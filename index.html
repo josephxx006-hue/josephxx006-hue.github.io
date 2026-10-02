@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#06101F"><title>VECTA ELD — Turning Nigerian directions into exact locations</title>
+<meta name="description" content="VECTA ELD prototype: location intelligence built for Nigeria. Abak pilot, demo data only.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#06101F;--navy:#0B1A2F;--navy-2:#11243F;--navy-3:#1B3558;--navy-4:#2A4A75;
+  --line:#DCE3EC;--paper:#F4F6FA;--white:#fff;--text:#0B1A2F;--muted:#586A84;
+  --signal:#FFB020;--signal-soft:#FFF3D9;--cyan:#59D2E6;--ok:#1B8F63;--ok-soft:#E3F5EC;--bad:#BF3E35;--bad-soft:#FBE9E7;--r:6px;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:'Schibsted Grotesk','Helvetica Neue',Arial,system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);color:var(--text);background:var(--white);line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:-.02em;line-height:1.12}
+p{margin:0}
+a{color:inherit}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.mono{font-family:var(--mono)}
+svg.i{display:inline-block;vertical-align:middle;flex:none}
+
+/* Nav */
+.nav{position:sticky;top:0;z-index:50;background:var(--ink);border-bottom:1px solid #162A47;color:#fff}
+.nav-in{display:flex;align-items:center;gap:28px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:700;letter-spacing:.16em;font-size:1.05rem}
+.logo .tag{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;font-weight:500;color:var(--signal);border:1px solid #5b4310;padding:2px 6px;border-radius:3px}
+.nav-links{display:flex;gap:4px;margin-left:12px}
+.nav-links a{color:#B7C5DB;text-decoration:none;font-size:.95rem;padding:8px 12px;border-radius:var(--r)}
+.nav-links a:hover{color:#fff;background:#0F2340}
+.nav-links a[aria-current=page]{color:#fff;box-shadow:inset 0 -2px 0 var(--signal);border-radius:0}
+.nav .spacer{flex:1}
+.menu-btn{display:none;background:none;border:1px solid #223a5e;color:#fff;border-radius:var(--r);padding:8px 10px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:var(--r);padding:12px 20px;font-weight:600;font-size:.97rem;text-decoration:none;transition:background .15s,border-color .15s,transform .1s}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover{background:var(--navy-3)}
+.btn-signal{background:var(--signal);color:#1b1200}
+.btn-signal:hover{background:#ffc04d}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--text)}
+.btn-ghost:hover{border-color:var(--navy-4);background:var(--paper)}
+.on-dark .btn-ghost{border-color:#2b4670;color:#fff}
+.on-dark .btn-ghost:hover{background:#0F2340;border-color:#4a6a9a}
+.btn-sm{padding:8px 14px;font-size:.88rem}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn-ok{background:var(--ok);color:#fff}.btn-ok:hover{background:#157652}
+.btn-bad{background:#fff;color:var(--bad);border-color:#e2b3ae}.btn-bad:hover{background:var(--bad-soft)}
+
+/* Hero */
+.hero{background:var(--ink);color:#fff;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(#0f2442 1px,transparent 1px),linear-gradient(90deg,#0f2442 1px,transparent 1px);background-size:56px 56px;opacity:.5;mask-image:linear-gradient(90deg,transparent,#000 60%)}
+.hero-in{position:relative;display:grid;grid-template-columns:1fr 1.05fr;gap:48px;align-items:center;padding:72px 24px 80px}
+.badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;color:var(--signal);border:1px solid #4c3a10;background:#1a1405;padding:6px 10px;border-radius:3px}
+.badge i{width:6px;height:6px;border-radius:50%;background:var(--signal)}
+.hero h1{font-size:clamp(2.5rem,5.2vw,4.3rem);letter-spacing:-.035em;line-height:1.02;margin:22px 0 20px;max-width:14ch}
+.hero p.lead{color:#B7C5DB;font-size:1.12rem;max-width:46ch}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
+.hero-meta{margin-top:36px;display:flex;gap:28px;color:#7F93B2;font-size:.85rem;flex-wrap:wrap}
+.hero-meta b{color:#fff;font-weight:600}
+.hero-map{position:relative;border:1px solid #1d3a63;border-radius:var(--r);overflow:hidden;background:#0B1B33;aspect-ratio:10/8.2}
+.hero-map svg{width:100%;height:100%;display:block}
+.hero-card{position:absolute;left:14px;right:14px;bottom:14px;background:rgba(6,16,31,.92);border:1px solid #234672;border-radius:var(--r);padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:6px 16px;align-items:center;backdrop-filter:blur(4px)}
+.hero-card q{grid-column:1/-1;color:#D7E2F2;font-size:.95rem;quotes:"“" "”"}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:.78rem;padding:3px 9px;border-radius:3px;background:#12294a;color:#A9C1E4;border:1px solid #214270}
+.chip.sig{background:#2a2007;color:var(--signal);border-color:#5b4310}
+.light .chip{background:var(--paper);color:var(--navy-3);border-color:var(--line)}
+.hero-card .pct{font-size:1.5rem;font-weight:600;color:#fff}
+.hero-card .pct small{font-size:.7rem;color:#7F93B2;display:block;font-weight:400;text-align:right;font-family:var(--mono)}
+
+/* map visual classes (shared) */
+.m-bg{fill:#0B1B33}
+.m-grid{stroke:#12294a;stroke-width:1;fill:none}
+.m-contour{fill:none;stroke:#143055;stroke-width:1.2}
+.m-bld{fill:#10264A;stroke:#1d3d69;stroke-width:.8}
+.m-case{fill:none;stroke:#0B1B33;stroke-linecap:round;stroke-linejoin:round}
+.m-road{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.m-road.primary{stroke:#3F6296}.m-road.secondary{stroke:#2F4E7C}.m-road.tertiary{stroke:#263F66}
+.m-lbl{fill:#7F96B8;font-family:var(--sans);font-weight:500}
+.m-lbl.road{fill:#5E789E;font-style:italic}
+.m-route{fill:none;stroke:var(--cyan);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;animation:draw 5s ease-in-out infinite}
+.m-route-ghost{fill:none;stroke:#59d2e6;stroke-opacity:.18;stroke-width:5;stroke-linecap:round}
+@keyframes draw{0%{stroke-dashoffset:1}55%,100%{stroke-dashoffset:0}}
+.pulse{fill:none;stroke:var(--signal);stroke-width:2;transform-box:fill-box;transform-origin:center;animation:pulse 2.6s ease-out infinite}
+.pulse.d2{animation-delay:1.3s}
+@keyframes pulse{0%{transform:scale(.3);opacity:.9}100%{transform:scale(2.6);opacity:0}}
+.pin-drop{animation:drop 5s ease-in-out infinite;transform-box:fill-box}
+@keyframes drop{0%,45%{opacity:0;transform:translateY(-14px)}58%{opacity:1;transform:translateY(0)}100%{opacity:1}}
+
+/* Sections */
+section.band{padding:80px 0}
+.eyebrow{font-size:.9rem;color:var(--muted);margin-bottom:10px}
+.h2{font-size:clamp(1.7rem,3vw,2.4rem);max-width:22ch}
+.sub{color:var(--muted);max-width:56ch;margin-top:14px}
+.paper{background:var(--paper)}
+.steps-row{display:grid;grid-template-columns:repeat(4,1fr);margin-top:44px;position:relative}
+.steps-row::before{content:"";position:absolute;left:0;right:0;top:9px;border-top:1px dashed #b3c0d3}
+.srow{padding-right:28px;position:relative}
+.srow .dot{width:19px;height:19px;border-radius:50%;background:#fff;border:2px solid var(--navy);position:relative;z-index:1;margin-bottom:18px}
+.srow:last-child .dot{background:var(--signal);border-color:var(--navy)}
+.srow h3{font-size:1.08rem;margin-bottom:6px}
+.srow p{color:var(--muted);font-size:.95rem}
+.xform{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:40px;background:#fff}
+.xform>div{padding:28px}
+.xform .in{background:var(--navy);color:#fff}
+.xform .in q{font-size:1.35rem;line-height:1.35;display:block;letter-spacing:-.01em;quotes:"“" "”"}
+.xform .in small{display:block;margin-top:18px;color:#8FA5C6}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:12px 14px;align-items:start;font-size:.95rem}
+.kv dt{color:var(--muted)}.kv dd{margin:0}
+.cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:40px}
+.col h3{font-size:1.1rem;margin:14px 0 8px}
+.col{border-top:2px solid var(--navy);padding-top:18px}
+.col p{color:var(--muted);font-size:.96rem}
+.cta-band{background:var(--navy);color:#fff;padding:64px 0}
+.cta-band .wrap{display:flex;justify-content:space-between;gap:24px;align-items:center;flex-wrap:wrap}
+.cta-band h2{font-size:clamp(1.5rem,2.6vw,2.1rem);max-width:24ch}
+
+/* Footer */
+.footer{background:var(--ink);color:#8FA5C6;padding:40px 0;font-size:.88rem}
+.footer .wrap{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.footer a{color:#B7C5DB;text-decoration:none}.footer a:hover{color:#fff}
+.footer .fl{display:flex;gap:18px;flex-wrap:wrap}
+
+/* Page header */
+.page-head{padding:56px 0 8px}
+.page-head h1{font-size:clamp(2rem,4vw,3rem);letter-spacing:-.03em}
+.page-head p{color:var(--muted);margin-top:12px;max-width:60ch;font-size:1.05rem}
+.demo-tag{display:inline-block;font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;padding:2px 7px;border-radius:3px;background:var(--signal-soft);color:#7a4b00;border:1px solid #f0d594;vertical-align:middle}
+
+/* ELD input */
+.eld-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:40px;padding:28px 0 80px;align-items:start}
+.panel{border:1px solid var(--line);border-radius:var(--r);background:#fff}
+.panel.pad{padding:24px}
+label.lbl{display:block;font-weight:600;font-size:.92rem;margin-bottom:8px}
+textarea.ta{width:100%;min-height:170px;resize:vertical;border:1px solid #bcc8d9;border-radius:var(--r);padding:16px;font:inherit;font-size:1.08rem;line-height:1.5;color:var(--text);background:#fff}
+textarea.ta:focus{border-color:var(--navy);outline:2px solid #ffd27a;outline-offset:0}
+.helper{font-size:.86rem;color:var(--muted);margin-top:8px}
+select.sel{width:100%;border:1px solid #bcc8d9;border-radius:var(--r);padding:12px 14px;font:inherit;background:#fff;color:var(--text)}
+.field-row{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:end;margin-top:20px}
+.err{color:var(--bad);font-size:.9rem;margin-top:10px;display:flex;gap:8px;align-items:center}
+.examples{margin-top:22px}
+.examples h3{font-size:.92rem;margin-bottom:10px}
+.ex-btn{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;color:var(--text);transition:border-color .15s,background .15s}
+.ex-btn:hover{border-color:var(--navy-4);background:var(--paper)}
+.side-note{background:var(--paper);border-radius:var(--r);padding:20px}
+.side-note h3{font-size:1rem;margin-bottom:10px}
+.side-note ul{margin:0;padding-left:18px;color:var(--muted);font-size:.93rem}
+.side-note li{margin-bottom:6px}
+
+/* Processing */
+.proc{max-width:620px;margin:0 auto;padding:72px 0 96px}
+.proc h2{font-size:clamp(1.7rem,3vw,2.2rem)}
+.proc q{display:block;margin:14px 0 30px;color:var(--muted);quotes:"“" "”"}
+.psteps{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+.psteps li{display:flex;align-items:center;gap:14px;padding:14px 0 14px 22px;margin-left:-2px;border-left:2px solid transparent;color:#9aa8bd;font-size:1.05rem;opacity:.0;transform:translateY(6px);transition:opacity .35s,transform .35s,color .3s,border-color .3s}
+.psteps li.show{opacity:1;transform:none}
+.psteps li.active{color:var(--text);border-left-color:var(--signal)}
+.psteps li.done{color:var(--text);border-left-color:var(--navy)}
+.psteps .ic{width:22px;height:22px;display:grid;place-items:center;flex:none}
+.psteps .dot{width:10px;height:10px;border-radius:50%;background:var(--signal);box-shadow:0 0 0 0 rgba(255,176,32,.6);animation:ring 1.4s infinite}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(255,176,32,.55)}100%{box-shadow:0 0 0 12px rgba(255,176,32,0)}}
+.proc-bar{height:3px;background:var(--line);margin-top:30px;border-radius:2px;overflow:hidden}
+.proc-bar i{display:block;height:100%;width:0;background:var(--navy);transition:width 2.9s linear}
+
+/* Results */
+.res-band{background:var(--ink);color:#fff;padding:40px 0 44px;position:relative;overflow:hidden}
+.res-band::before{content:"";position:absolute;inset:0;background-image:linear-gradient(#0f2442 1px,transparent 1px),linear-gradient(90deg,#0f2442 1px,transparent 1px);background-size:48px 48px;opacity:.45}
+.res-in{position:relative;display:grid;grid-template-columns:1fr minmax(0,.9fr);gap:40px;align-items:end}
+.status{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.8rem;letter-spacing:.12em;color:var(--cyan)}
+.status.warn{color:var(--signal)}
+.status i{width:8px;height:8px;border-radius:50%;background:currentColor}
+.conf-num{font-size:clamp(4rem,10vw,6.6rem);font-weight:600;letter-spacing:-.05em;line-height:1;margin-top:10px}
+.conf-num span{font-size:.4em;color:#8FA5C6;margin-left:4px;letter-spacing:0}
+.conf-label{font-family:var(--mono);font-size:.78rem;letter-spacing:.14em;color:#8FA5C6;margin:6px 0 16px}
+.bar{position:relative;height:8px;background:#162B4B;border-radius:2px;max-width:460px}
+.bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--cyan);border-radius:2px;transition:width 1s cubic-bezier(.2,.7,.2,1)}
+.bar.low i{background:var(--signal)}
+.bar b{position:absolute;top:-5px;bottom:-5px;width:2px;background:#fff;left:80%}
+.bar-scale{display:flex;justify-content:space-between;max-width:460px;font-size:.74rem;color:#6F86A8;margin-top:8px;font-family:var(--mono)}
+.bar-scale .t{position:absolute}
+.desc-card{border:1px solid #1e3a63;background:rgba(11,26,47,.8);border-radius:var(--r);padding:18px 20px}
+.desc-card small{color:#8FA5C6;display:block;margin-bottom:6px}
+.desc-card q{display:block;font-size:1.08rem;color:#E4ECF8;quotes:"“" "”"}
+.desc-card .row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.res-body{padding:36px 0 80px}
+.maprow{margin-bottom:28px}
+.mapbox{position:relative;border:1px solid #1d3a63;border-radius:var(--r);overflow:hidden;background:#0B1B33;aspect-ratio:10/6;min-height:300px}
+.mapbox svg{width:100%;height:100%;display:block;user-select:none;-webkit-user-select:none;touch-action:pan-y;cursor:grab}
+.mapbox.pick svg{touch-action:none}
+.mapbox svg:active{cursor:grabbing}
+.mapctl{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px}
+.mapctl button{width:34px;height:34px;border-radius:var(--r);background:rgba(6,16,31,.9);border:1px solid #2b4670;color:#fff;font-size:1.1rem;line-height:1}
+.mapctl button:hover{background:#0F2340}
+.map-attr{position:absolute;left:10px;bottom:10px;font-size:.72rem;color:#9FB3D1;background:rgba(6,16,31,.85);padding:4px 8px;border-radius:3px;border:1px solid #1d3a63;font-family:var(--mono)}
+.legend{position:absolute;left:10px;top:10px;font-size:.74rem;color:#C7D5EA;background:rgba(6,16,31,.85);padding:6px 9px;border-radius:3px;border:1px solid #1d3a63;display:flex;gap:12px;align-items:center}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.detail{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.detail h2{font-size:1.5rem}
+.coords{font-family:var(--mono);font-size:1rem;margin:10px 0 4px;color:var(--navy)}
+.coords-note{font-size:.82rem;color:var(--muted)}
+.found-list{list-style:none;margin:16px 0 0;padding:0;border:1px solid var(--line);border-radius:var(--r)}
+.found-list li{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.found-list li:last-child{border-bottom:0}
+.found-list .ic{width:32px;height:32px;border-radius:var(--r);background:var(--paper);display:grid;place-items:center;color:var(--navy-3)}
+.found-list .d{margin-left:auto;font-family:var(--mono);font-size:.9rem;color:var(--muted)}
+.why{margin-top:14px}
+.why li{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);list-style:none}
+.why ul{margin:0;padding:0}
+.why .res{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:.88rem}
+.ok{color:var(--ok)}.part{color:#B5780A}.na{color:#8a97ab}
+.why-note{margin-top:14px;font-size:.93rem;color:var(--muted)}
+.cands{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.cand{border:1px solid var(--line);border-radius:var(--r);padding:20px;background:#fff;display:flex;flex-direction:column;gap:6px;transition:border-color .15s,box-shadow .15s}
+.cand.is-sel{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}
+.cand .top{display:flex;justify-content:space-between;color:var(--muted);font-size:.85rem}
+.cand .pct{font-weight:600;color:var(--text)}
+.cand h3{font-size:1.15rem;margin-top:4px}
+.cand p{color:var(--muted);font-size:.93rem}
+.mini{height:4px;background:var(--line);border-radius:2px;margin:10px 0 14px}
+.mini i{display:block;height:100%;background:var(--navy);border-radius:2px}
+.cand .btn{margin-top:auto}
+.alt-toggle{display:flex;align-items:center;gap:14px;margin:6px 0 24px;flex-wrap:wrap}
+.fb{margin-top:36px;border:1px solid var(--line);border-radius:var(--r);padding:26px;background:var(--paper)}
+.fb h2{font-size:1.4rem;margin-bottom:6px}
+.fb .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+.reasons{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 22px}
+.reason{padding:9px 14px;border:1px solid #bcc8d9;background:#fff;border-radius:var(--r);font-size:.93rem;color:var(--text)}
+.reason[aria-checked=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.fb .mapbox{aspect-ratio:10/5.4;margin:10px 0 12px}
+.thanks{display:flex;gap:14px;align-items:flex-start}
+.thanks .ic{width:36px;height:36px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center;flex:none}
+.empty{max-width:560px;margin:80px auto;text-align:center;padding:0 24px}
+.empty .ic{width:52px;height:52px;border-radius:50%;background:var(--paper);display:grid;place-items:center;margin:0 auto 18px;color:var(--navy-3)}
+.empty h2{font-size:1.6rem;margin-bottom:10px}
+.empty p{color:var(--muted);margin-bottom:22px}
+.empty ul{text-align:left;display:inline-block;color:var(--muted);margin:0 0 22px;padding-left:18px}
+
+/* Dashboard */
+.demo-pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.74rem;letter-spacing:.12em;color:#7a4b00;background:var(--signal-soft);border:1px solid #f0d594;padding:5px 10px;border-radius:3px}
+.demo-pill i{width:7px;height:7px;border-radius:50%;background:var(--signal);animation:ring 1.6s infinite}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:var(--r);margin-top:28px;background:#fff}
+.metric{padding:22px 24px;border-right:1px solid var(--line)}
+.metric:last-child{border-right:0}
+.metric .v{font-size:2.4rem;font-weight:600;letter-spacing:-.03em;line-height:1.1;margin:6px 0 8px}
+.metric .l{color:var(--muted);font-size:.92rem}
+.dash-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.6fr);gap:24px;margin:24px 0 80px;align-items:start}
+.cov{padding:24px}
+.ring{display:flex;gap:22px;align-items:center}
+.ring svg{flex:none}
+.ring .big{font-size:2rem;font-weight:600;letter-spacing:-.03em}
+.stat{display:flex;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line);font-size:.95rem}
+.stat b{font-variant-numeric:tabular-nums}
+table.tbl{width:100%;border-collapse:collapse;font-size:.93rem}
+.tbl th{text-align:left;font-weight:500;color:var(--muted);padding:12px 16px;border-bottom:1px solid var(--line);font-size:.84rem}
+.tbl td{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr.row{cursor:pointer}
+.tbl tr.row:hover td{background:var(--paper)}
+.tbl tr.row:focus-visible{outline:2px solid var(--signal);outline-offset:-2px}
+.tbl .desc{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill{display:inline-block;padding:3px 9px;border-radius:3px;font-size:.8rem;font-weight:500}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.fix{background:var(--bad-soft);color:var(--bad)}
+.pill.pend{background:var(--paper);color:var(--muted);border:1px solid var(--line)}
+.pill.new{background:var(--signal-soft);color:#7a4b00}
+.tbl-wrap{overflow-x:auto}
+.panel-h{display:flex;justify-content:space-between;align-items:center;padding:18px 20px 12px;gap:10px;flex-wrap:wrap}
+.panel-h h2{font-size:1.15rem}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(6,16,31,.62);display:grid;place-items:center;z-index:100;padding:20px}
+.modal{background:#fff;border-radius:var(--r);max-width:520px;width:100%;padding:26px;max-height:90vh;overflow:auto}
+.modal h3{font-size:1.3rem;margin-bottom:4px}
+.modal q{display:block;margin:14px 0;font-size:1.05rem;quotes:"“" "”"}
+
+/* Coverage */
+.pilot{display:grid;grid-template-columns:1.1fr 1fr;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:32px;background:#fff}
+.pilot .t{padding:32px}
+.pilot .mapside{background:#0B1B33;min-height:260px;position:relative}
+.pilot .mapside svg{position:absolute;inset:0;width:100%;height:100%}
+.status-pill{display:inline-flex;align-items:center;gap:8px;padding:4px 10px;border-radius:3px;font-size:.82rem;font-weight:600;background:var(--ok-soft);color:var(--ok)}
+.status-pill i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.future{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px}
+.fcard{border:1px dashed #b3c0d3;border-radius:var(--r);padding:20px;background:#fff}
+.fcard h3{font-size:1.2rem;margin-bottom:10px}
+.fcard .s{font-size:.82rem;color:var(--muted);display:inline-block;padding:3px 9px;background:var(--paper);border-radius:3px;border:1px solid var(--line)}
+.fcard.next .s{background:var(--signal-soft);border-color:#f0d594;color:#7a4b00}
+.fcard p{margin-top:12px;font-size:.88rem;color:var(--muted)}
+
+/* About */
+.about-copy{max-width:62ch;font-size:1.15rem;color:#2b3c57;margin-top:24px}
+.about-copy p+p{margin-top:18px}
+
+/* API */
+.endpoint{display:flex;align-items:center;gap:12px;background:var(--navy);color:#fff;border-radius:var(--r);padding:14px 16px;margin-top:28px;flex-wrap:wrap}
+.method{background:var(--signal);color:#1b1200;font-family:var(--mono);font-weight:600;font-size:.8rem;padding:3px 8px;border-radius:3px}
+.endpoint code{font-family:var(--mono);font-size:1rem}
+.warnbar{margin-left:auto;font-family:var(--mono);font-size:.74rem;color:var(--signal)}
+.code-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}
+.code{background:var(--ink);color:#D3DEEF;border-radius:var(--r);overflow:hidden;border:1px solid #162A47}
+.code header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #162A47;font-size:.82rem;color:#8FA5C6;gap:10px}
+.code pre{margin:0;padding:16px;font-family:var(--mono);font-size:.84rem;line-height:1.6;overflow:auto;max-height:420px;white-space:pre}
+.prods{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px}
+.prod{border:1px solid var(--line);border-radius:var(--r);padding:18px;background:#fff}
+.prod h3{font-size:1.05rem;margin-bottom:8px}
+.prod p{font-size:.88rem;color:var(--muted)}
+.prod .s{display:inline-block;margin-top:10px;font-size:.78rem;padding:2px 8px;border-radius:3px;background:var(--paper);border:1px solid var(--line);color:var(--muted)}
+.prod .s.live{background:var(--signal-soft);border-color:#f0d594;color:#7a4b00}
+
+@media (max-width:980px){
+  .hero-in,.eld-grid,.res-in,.detail,.pilot,.code-grid,.dash-grid,.xform{grid-template-columns:1fr}
+  .hero-in{padding-top:48px;gap:36px}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .metric:nth-child(2){border-right:0}
+  .metric:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .future,.prods{grid-template-columns:repeat(2,1fr)}
+  .steps-row{grid-template-columns:repeat(2,1fr);gap:32px 0}.steps-row::before{display:none}
+  .cands,.cols3{grid-template-columns:1fr}
+}
+@media (max-width:720px){
+  .menu-btn{display:block}
+  .nav-links{display:none;position:absolute;top:64px;left:0;right:0;background:var(--ink);flex-direction:column;padding:10px 16px 16px;border-bottom:1px solid #162A47;margin:0}
+  .nav-links.open{display:flex}
+  .nav-links a[aria-current=page]{box-shadow:none;background:#0F2340;border-radius:var(--r)}
+  .nav .btn{display:none}
+  .nav .spacer{display:block}
+  .wrap{padding:0 18px}
+  section.band{padding:56px 0}
+  .field-row{grid-template-columns:1fr}
+  .field-row .btn{width:100%}
+  .future,.prods{grid-template-columns:1fr}
+  .steps-row{grid-template-columns:1fr}
+  .mapbox{aspect-ratio:4/3.4}
+  .hero-card{grid-template-columns:1fr}
+  .hero-card .pct small{text-align:left}
+  .tbl .hide-s{display:none}
+  .xform>div{padding:22px}
+  .kv{grid-template-columns:90px 1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .m-route{stroke-dashoffset:0}
+}
+
+</style></head>
+<body><a class="sr-only" href="#main">Skip to content</a><div id="app"></div><div id="modal-root"></div>
+<noscript>VECTA ELD needs JavaScript to run this prototype.</noscript>
+<script>
+/* =====================================================================
+   VECTA ELD — PROTOTYPE DATA + SERVICES LAYER
+   Everything in this block is UI-free so it can be swapped for a real
+   backend later (LLM/NLP + PostGIS + OSM/Mapbox + proprietary data).
+
+   PROTOTYPE / DEMO DATA: all locations, landmarks, roads and coordinates
+   below are simulated. They are NOT verified real-world geography.
+   ===================================================================== */
+
+/* ---------- data/geo: simulated coordinate frame for the Abak pilot ----------
+   The stylized map uses a 1000 x 700 grid. These bounds map the grid onto
+   simulated latitude/longitude values near Abak. Demo values only. */
+const GEO = {
+  W: 1000, H: 700,
+  latTop: 5.0170, latBottom: 5.0030,
+  lngLeft: 7.7750, lngRight: 7.7950,
+  metersPerUnit: 2.2,
+  toLatLng(x, y) {
+    return {
+      lat: this.latTop - (y / this.H) * (this.latTop - this.latBottom),
+      lng: this.lngLeft + (x / this.W) * (this.lngRight - this.lngLeft)
+    };
+  },
+  toXY(lat, lng) {
+    return {
+      x: ((lng - this.lngLeft) / (this.lngRight - this.lngLeft)) * this.W,
+      y: ((this.latTop - lat) / (this.latTop - this.latBottom)) * this.H
+    };
+  }
+};
+
+/* ---------- data/abakLandmarks (DEMO) ---------- */
+const LANDMARKS = [
+  { id: 'lm-market',     name: 'Market',               type: 'market',          x: 575, y: 290 },
+  { id: 'lm-church-c',   name: 'Church',               type: 'church',          x: 498, y: 292 },
+  { id: 'lm-church-w',   name: 'Church',               type: 'church',          x: 292, y: 282 },
+  { id: 'lm-jn-main2',   name: 'Main Road Junction',   type: 'junction',        x: 428, y: 363 },
+  { id: 'lm-jn-market',  name: 'Market Road Junction', type: 'junction',        x: 520, y: 352 },
+  { id: 'lm-jn-third',   name: 'Third Street Junction',type: 'junction',        x: 640, y: 338 },
+  { id: 'lm-school',     name: 'School',               type: 'school',          x: 215, y: 452 },
+  { id: 'lm-hospital',   name: 'Hospital',             type: 'hospital',        x: 770, y: 196 },
+  { id: 'lm-pharm-c',    name: 'Pharmacy',             type: 'pharmacy',        x: 452, y: 348 },
+  { id: 'lm-pharm-e',    name: 'Pharmacy',             type: 'pharmacy',        x: 668, y: 348 },
+  { id: 'lm-pharm-h',    name: 'Pharmacy',             type: 'pharmacy',        x: 745, y: 222 },
+  { id: 'lm-fuel',       name: 'Filling Station',      type: 'filling_station', x: 405, y: 384 },
+  { id: 'lm-plaza',      name: 'Plaza',                type: 'plaza',           x: 655, y: 312 },
+  { id: 'lm-estate',     name: 'Estate Entrance',      type: 'estate',          x: 792, y: 538 },
+  { id: 'lm-gate-a',     name: 'Gate',                 type: 'gate',            x: 268, y: 296 },
+  { id: 'lm-gate-b',     name: 'Gate',                 type: 'gate',            x: 798, y: 552 },
+  { id: 'lm-gate-s',     name: 'Gate',                 type: 'gate',            x: 206, y: 470 }
+].map(l => {
+  const ll = GEO.toLatLng(l.x, l.y);
+  return { ...l, latitude: +ll.lat.toFixed(6), longitude: +ll.lng.toFixed(6), isDemo: true };
+});
+
+/* ---------- data: stylized road network (DEMO) ---------- */
+const ROADS = [
+  { id: 'main',     name: 'Main Road',     key: 'main road',     kind: 'primary',   pts: [[-20,392],[180,384],[330,372],[430,362],[520,352],[640,338],[800,310],[1020,285]] },
+  { id: 'first',    name: 'First Street',  key: 'first street',  kind: 'secondary', pts: [[255,-20],[252,150],[262,300],[275,378],[290,520],[300,720]] },
+  { id: 'second',   name: 'Second Street', key: 'second street', kind: 'secondary', pts: [[410,-20],[418,140],[425,260],[428,363],[438,480],[450,720]] },
+  { id: 'third',    name: 'Third Street',  key: 'third street',  kind: 'secondary', pts: [[640,-20],[648,150],[646,260],[640,338],[652,480],[670,720]] },
+  { id: 'market',   name: 'Market Road',   key: 'market road',   kind: 'secondary', pts: [[520,352],[522,310],[550,262],[610,200],[700,150],[780,110],[900,60],[1020,30]] },
+  { id: 'school',   name: 'School Road',   key: 'school road',   kind: 'tertiary',  pts: [[140,386],[170,440],[200,520],[230,610],[250,720]] },
+  { id: 'hospital', name: 'Hospital Road', key: 'hospital road', kind: 'tertiary',  pts: [[800,310],[790,250],[770,200],[760,120],[765,-20]] },
+  { id: 'estate',   name: 'Estate Road',   key: 'estate road',   kind: 'tertiary',  pts: [[652,480],[720,500],[790,525],[860,540],[940,560],[1020,560]] },
+  { id: 'estate2',  name: 'Estate Road',   key: 'estate road',   kind: 'tertiary',  pts: [[790,525],[800,600],[782,690],[778,720]] }
+];
+
+/* ---------- data/abakLocations (PROTOTYPE / DEMO DATA) ----------
+   Fictional test records. Generic area labels only. Not real addresses. */
+const _seed = [
+  { id: 'abak-001', area: 'Abak Market Area', x: 566, y: 262,
+    landmarks: ['market', 'church'], roads: ['market road', 'main road'], buildingType: 'commercial',
+    directionHints: ['behind', 'near', 'after'], attributes: [], confidence: 0.91,
+    altDescriptions: ['behind the market close to the church', 'back of the market near the church on market road', 'after the church behind the market'] },
+  { id: 'abak-002', area: 'Central Abak Area', x: 440, y: 350,
+    landmarks: ['junction', 'pharmacy'], roads: ['main road', 'second street'], buildingType: 'commercial',
+    directionHints: ['beside', 'opposite', 'near'], attributes: [], confidence: 0.84,
+    altDescriptions: ['beside the pharmacy near the junction', 'opposite the pharmacy on main road', 'near the junction by second street'] },
+  { id: 'abak-003', area: 'Main Road Junction', x: 415, y: 381,
+    landmarks: ['junction', 'filling_station'], roads: ['main road', 'second street'], buildingType: 'commercial',
+    directionHints: ['after', 'left', 'second', 'before'], attributes: [], confidence: 0.82,
+    altDescriptions: ['after the junction on main road turn left second street', 'before the filling station after the junction', 'junction on main road then left'] },
+  { id: 'abak-004', area: 'Residential Area A', x: 262, y: 312,
+    landmarks: ['church', 'gate'], roads: ['first street'], buildingType: 'residential',
+    directionHints: ['near', 'left', 'second', 'behind'], attributes: ['white'], confidence: 0.76,
+    altDescriptions: ['near the church first street white gate', 'behind the church second house on the left', 'first street white gate near church'] },
+  { id: 'abak-005', area: 'School Area', x: 204, y: 458,
+    landmarks: ['school', 'gate'], roads: ['school road', 'first street'], buildingType: 'residential',
+    directionHints: ['opposite', 'beside'], attributes: ['blue'], confidence: 0.78,
+    altDescriptions: ['opposite the school beside the blue building', 'blue building near the school gate on school road', 'across from the school blue gate'] },
+  { id: 'abak-006', area: 'Church Area', x: 505, y: 278,
+    landmarks: ['church', 'market'], roads: ['second street', 'market road'], buildingType: 'institutional',
+    directionHints: ['after', 'near', 'beside'], attributes: [], confidence: 0.8,
+    altDescriptions: ['beside the church near the market', 'after the church on market road', 'church on second street by the market'] },
+  { id: 'abak-007', area: 'Commercial Area', x: 655, y: 330,
+    landmarks: ['plaza', 'pharmacy'], roads: ['main road', 'third street'], buildingType: 'commercial',
+    directionHints: ['beside', 'opposite', 'near'], attributes: [], confidence: 0.79,
+    altDescriptions: ['beside the plaza near the pharmacy', 'opposite the plaza on main road', 'third street by the plaza'] },
+  { id: 'abak-008', area: 'Hospital Area', x: 766, y: 214,
+    landmarks: ['hospital', 'pharmacy'], roads: ['hospital road', 'main road'], buildingType: 'institutional',
+    directionHints: ['after', 'behind', 'near', 'right'], attributes: [], confidence: 0.83,
+    altDescriptions: ['behind the hospital near the pharmacy', 'after the hospital on hospital road turn right', 'pharmacy close to the hospital'] },
+  { id: 'abak-009', area: 'Junction Area', x: 514, y: 342,
+    landmarks: ['junction', 'market'], roads: ['market road', 'main road'], buildingType: 'commercial',
+    directionHints: ['after', 'before', 'left', 'right'], attributes: [], confidence: 0.77,
+    altDescriptions: ['after the junction before the market', 'junction on main road turn left to market road', 'before the market junction on the right'] },
+  { id: 'abak-010', area: 'Estate / Residential Area', x: 788, y: 526,
+    landmarks: ['estate', 'gate', 'junction'], roads: ['estate road', 'third street'], buildingType: 'residential',
+    directionHints: ['near', 'left', 'second', 'right', 'after'], attributes: ['blue'], confidence: 0.74,
+    altDescriptions: ['inside the estate second house on the left blue gate', 'after the estate gate near the junction', 'estate road blue gate on the right'] }
+];
+const LOCATIONS = _seed.map(s => {
+  const ll = GEO.toLatLng(s.x, s.y);
+  return { ...s, city: 'Abak', state: 'Akwa Ibom', latitude: +ll.lat.toFixed(6), longitude: +ll.lng.toFixed(6), isDemo: true };
+});
+
+/* ---------- services/locationMatcher ----------
+   Step 1-5: normalize, extract clues. Step 6-9: score, rank, confidence.
+   Pure functions, no DOM. Replace with an LLM extractor + PostGIS ranking. */
+const STOPWORDS = new Set('the a an of to in on at by is it and or for with from my our your this that there here then just like very please so as be are was i we you can will pls abeg'.split(' '));
+
+const LEX = {
+  landmarks: {
+    market: ['market', 'mkt'],
+    church: ['church', 'chapel', 'cathedral', 'parish'],
+    junction: ['junction', 'roundabout', 'round about', 'intersection', 'bus stop', 'busstop'],
+    school: ['school', 'college', 'academy', 'nursery', 'primary school'],
+    hospital: ['hospital', 'clinic', 'health centre', 'health center', 'maternity', 'medical centre'],
+    pharmacy: ['pharmacy', 'chemist', 'patent medicine', 'drug store', 'drugstore'],
+    filling_station: ['filling station', 'petrol station', 'fuel station', 'gas station', 'petrol pump'],
+    estate: ['estate', 'housing estate', 'layout', 'quarters'],
+    gate: ['gate', 'fence'],
+    plaza: ['plaza', 'mall', 'shopping complex', 'complex', 'supermarket', 'bank']
+  },
+  roads: {
+    'main road': ['main road', 'express road', 'expressway', 'express way', 'highway', 'trunk road'],
+    'first street': ['first street'],
+    'second street': ['second street'],
+    'third street': ['third street'],
+    'market road': ['market road'],
+    'school road': ['school road'],
+    'hospital road': ['hospital road'],
+    'estate road': ['estate road']
+  },
+  directions: {
+    after: ['after', 'past', 'pass'],
+    before: ['before'],
+    opposite: ['opposite', 'facing', 'in front of', 'across from', 'across'],
+    beside: ['beside', 'next to', 'adjacent', 'side of'],
+    behind: ['behind', 'back of', 'at the back', 'rear'],
+    near: ['near', 'close to', 'around', 'nearby', 'not far from'],
+    left: ['left'],
+    right: ['right'],
+    first: ['first'],
+    second: ['second'],
+    third: ['third'],
+    turn: ['turn', 'enter']
+  },
+  buildingTypes: {
+    residential: ['house', 'bungalow', 'duplex', 'apartment', 'flat', 'compound', 'storey', 'story'],
+    commercial: ['shop', 'store', 'kiosk', 'office', 'restaurant', 'salon'],
+    institutional: ['hall', 'palace', 'secretariat']
+  },
+  attributes: {
+    blue: ['blue'], white: ['white'], red: ['red'], green: ['green'], yellow: ['yellow'],
+    black: ['black'], brown: ['brown'], cream: ['cream'], pink: ['pink']
+  }
+};
+
+function normalizeText(t) {
+  return String(t || '').toLowerCase()
+    .replace(/\b1st\b/g, 'first').replace(/\b2nd\b/g, 'second').replace(/\b3rd\b/g, 'third')
+    .replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function _phrase(p) { return new RegExp('(?:^|\\s)' + p.replace(/\s+/g, '\\s+') + '(?=\\s|$)'); }
+function findKeys(text, lex) {
+  const hits = [];
+  for (const [key, phrases] of Object.entries(lex)) {
+    let first = -1;
+    for (const p of phrases) {
+      const m = _phrase(p).exec(text);
+      if (m && (first === -1 || m.index < first)) first = m.index;
+    }
+    if (first !== -1) hits.push([key, first]);
+  }
+  return hits.sort((a, b) => a[1] - b[1]).map(h => h[0]);
+}
+function contentTokens(text) {
+  return normalizeText(text).split(' ').filter(w => w.length > 1 && !STOPWORDS.has(w));
+}
+function jaccard(a, b) {
+  const A = new Set(a), B = new Set(b);
+  if (!A.size || !B.size) return 0;
+  let inter = 0; A.forEach(x => { if (B.has(x)) inter++; });
+  return inter / (A.size + B.size - inter);
+}
+
+/** Steps 1-5: normalize + extract clues from a free-text description. */
+function parseDescription(description) {
+  const text = normalizeText(description);
+  const landmarks = findKeys(text, LEX.landmarks);
+  const roads = findKeys(text, LEX.roads);
+  const directions = findKeys(text, LEX.directions);
+  const attributes = findKeys(text, LEX.attributes);
+  const bt = findKeys(text, LEX.buildingTypes);
+  return {
+    text, tokens: contentTokens(description),
+    landmarks, roads, directions, attributes,
+    buildingType: bt[0] || '',
+    clues: landmarks.length + roads.length + directions.length + attributes.length
+  };
+}
+
+const WEIGHTS = { landmark: 0.35, road: 0.20, direction: 0.17, building: 0.08, attribute: 0.06, alt: 0.14 };
+const overlap = (a, b) => a.filter(x => b.includes(x));
+
+/** Step 6: score one candidate. Only clue types present in the input count. */
+function scoreLocation(loc, p) {
+  const parts = [];
+  const matched = { landmarks: [], roads: [], directions: [], attributes: [], buildingType: false };
+  if (p.landmarks.length) {
+    matched.landmarks = overlap(p.landmarks, loc.landmarks);
+    const m = matched.landmarks.length;
+    parts.push([WEIGHTS.landmark, 0.8 * (m / p.landmarks.length) + 0.2 * (m / loc.landmarks.length)]);
+  }
+  if (p.roads.length) {
+    matched.roads = overlap(p.roads, loc.roads);
+    parts.push([WEIGHTS.road, matched.roads.length / p.roads.length]);
+  }
+  if (p.directions.length) {
+    matched.directions = overlap(p.directions, loc.directionHints);
+    parts.push([WEIGHTS.direction, matched.directions.length / p.directions.length]);
+  }
+  if (p.buildingType) {
+    matched.buildingType = p.buildingType === loc.buildingType;
+    parts.push([WEIGHTS.building, matched.buildingType ? 1 : 0]);
+  }
+  if (p.attributes.length) {
+    matched.attributes = overlap(p.attributes, loc.attributes);
+    parts.push([WEIGHTS.attribute, matched.attributes.length / p.attributes.length]);
+  }
+  if (p.tokens.length >= 2) {
+    const best = Math.max(...loc.altDescriptions.map(d => jaccard(p.tokens, contentTokens(d))));
+    parts.push([WEIGHTS.alt, Math.min(1, best * 1.4)]);
+  }
+  const wsum = parts.reduce((s, x) => s + x[0], 0);
+  const raw = wsum ? parts.reduce((s, x) => s + x[0] * x[1], 0) / wsum : 0;
+  return { raw, matched };
+}
+
+/** Steps 7-9: rank + confidence + alternatives. */
+function rankLocations(p, locations) {
+  const specificity = 0.72 + 0.28 * Math.min(1, p.clues / 4);
+  const scored = locations.map(loc => {
+    const s = scoreLocation(loc, p);
+    let conf = (0.1 + 0.88 * s.raw) * specificity * (0.93 + 0.07 * loc.confidence);
+    return { loc, raw: s.raw, matched: s.matched, conf };
+  }).sort((a, b) => b.conf - a.conf);
+
+  // Order by score first, then reflect ambiguity in the top confidence only:
+  // if the runner-up is nearly as good, the top answer is less certain.
+  scored.sort((a, b) => b.conf - a.conf);
+  scored.forEach(s => { s.conf = Math.max(0.04, Math.min(0.97, s.conf)); });
+  if (scored.length > 1 && scored[0].raw > 0) {
+    const margin = scored[0].raw - scored[1].raw;
+    const penalty = Math.max(0, Math.min(1, (0.3 - margin) / 0.3)) * 0.06;
+    scored[0].conf *= 1 - penalty;
+    for (let i = 1; i < scored.length; i++) scored[i].conf = Math.min(scored[i].conf, scored[i - 1].conf - 0.02);
+  }
+  return scored;
+}
+
+/* ---------- geometry helpers ---------- */
+function distToSegment(px, py, ax, ay, bx, by) {
+  const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+  let t = l2 ? ((px - ax) * dx + (py - ay) * dy) / l2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+}
+function distToRoad(x, y, road) {
+  let d = Infinity;
+  for (let i = 0; i < road.pts.length - 1; i++) {
+    d = Math.min(d, distToSegment(x, y, road.pts[i][0], road.pts[i][1], road.pts[i + 1][0], road.pts[i + 1][1]));
+  }
+  return d;
+}
+const toMeters = u => Math.max(10, Math.round((u * GEO.metersPerUnit) / 5) * 5);
+
+/** Evidence shown on the result screen: nearest demo landmarks + road. */
+function buildEvidence(loc) {
+  const found = [];
+  loc.landmarks.forEach(type => {
+    const ofType = LANDMARKS.filter(l => l.type === type);
+    if (!ofType.length) return;
+    const best = ofType.map(l => ({ l, d: Math.hypot(l.x - loc.x, l.y - loc.y) })).sort((a, b) => a.d - b.d)[0];
+    found.push({ kind: 'landmark', type, name: best.l.name, distance: toMeters(best.d), x: best.l.x, y: best.l.y });
+  });
+  const road = ROADS.find(r => r.key === loc.roads[0]);
+  if (road) {
+    found.push({ kind: 'road', type: 'road', name: road.name, distance: toMeters(distToRoad(loc.x, loc.y, road)) });
+  }
+  found.push({ kind: 'building', type: 'building', name: loc.buildingType.charAt(0).toUpperCase() + loc.buildingType.slice(1) + ' building', distance: null });
+  return found;
+}
+
+/* ---------- services/locationInterpreter ----------
+   LocationInterpretationService is the ONLY thing the UI calls.
+
+   PRODUCTION NOTE: replace the body of interpretLocation() with
+     1) a server-side call to an LLM/NLP model that extracts landmarks,
+        roads and spatial relations from the description (never call a
+        model from the browser with an API key in it), then
+     2) a PostGIS / OSM / Mapbox / proprietary-data query that ranks
+        geographic candidates using those clues.
+   The return shape below should stay the same so the UI does not change. */
+const LocationInterpretationService = {
+  engine: { name: 'vecta-sim', version: '0.1.0', simulated: true },
+  supportedCities: ['Abak'],
+
+  interpretLocationSync(description, city = 'Abak') {
+    if (!this.supportedCities.includes(city)) throw new Error(`${city} is not part of the pilot yet. Choose Abak.`);
+    if (!description || description.trim().length < 6) throw new Error('Add a short description first.');
+    const p = parseDescription(description);
+    const base = { engine: this.engine, input: { description, city, state: 'Akwa Ibom' },
+      landmarks: p.landmarks, roads: p.roads, directions: p.directions, attributes: p.attributes,
+      buildingType: p.buildingType, clues: p.clues };
+    if (p.clues === 0) return { ...base, status: 'no_match', area: '', candidateLocations: [] };
+
+    const ranked = rankLocations(p, LOCATIONS);
+    const candidates = ranked.slice(0, 3).map((r, i) => {
+      const ev = buildEvidence(r.loc);
+      const lms = ev.filter(e => e.kind === 'landmark').sort((a, b) => a.distance - b.distance);
+      return {
+        id: r.loc.id, rank: i + 1, area: r.loc.area, isDemo: true,
+        latitude: r.loc.latitude, longitude: r.loc.longitude, x: r.loc.x, y: r.loc.y,
+        confidence: +r.conf.toFixed(2), matched: r.matched,
+        buildingType: r.loc.buildingType, evidence: ev,
+        nearest: lms[0] || null
+      };
+    });
+    if (candidates[0].confidence < 0.25) return { ...base, status: 'no_match', area: '', candidateLocations: [] };
+    return { ...base, status: 'ok', area: candidates[0].area, candidateLocations: candidates };
+  },
+
+  async interpretLocation(description, city = 'Abak') {
+    await new Promise(r => setTimeout(r, 350)); // simulated network/model latency
+    return this.interpretLocationSync(description, city);
+  },
+
+  /** Mock of POST /api/v1/eld/geocode (prototype only). */
+  async geocode(body) {
+    const out = await this.interpretLocation(body.description, body.city || 'Abak');
+    const top = out.candidateLocations[0];
+    return {
+      prototype: true, simulated: true,
+      confidence: top ? top.confidence : 0,
+      location: top ? { latitude: top.latitude, longitude: top.longitude } : null,
+      matches: out.candidateLocations.map(c => ({
+        id: c.id, area: c.area, confidence: c.confidence,
+        latitude: c.latitude, longitude: c.longitude,
+        matched_on: { landmarks: c.matched.landmarks, roads: c.matched.roads, directions: c.matched.directions }
+      }))
+    };
+  }
+};
+
+/* =====================================================================
+   UI LAYER — components, pages, router.
+   Only talks to the engine through LocationInterpretationService.
+   ===================================================================== */
+
+/* ---------- utils ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pct = n => Math.round(n * 100);
+const fmtCoord = (lat, lng) => `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+const cap = s => s.replace(/_/g, ' ').replace(/^./, c => c.toUpperCase());
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+const ICONS = {
+  market: '<path d="M4 9l1.5-5h13L20 9v1a3 3 0 0 1-6 0 3 3 0 0 1-4 0 3 3 0 0 1-6 0V9zM5 13v7h14v-7"/>',
+  church: '<path d="M12 2v5M9.5 4.5h5M6 21V12l6-4 6 4v9zM10 21v-5h4v5"/>',
+  junction: '<path d="M12 3v18M3 12h18"/>',
+  school: '<path d="M2 9l10-5 10 5-10 5zM6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/>',
+  hospital: '<path d="M5 4h14v16H5zM12 8v8M8 12h8"/>',
+  pharmacy: '<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/>',
+  filling_station: '<path d="M5 20V5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v15M4 20h11M14 9h2.5a1.5 1.5 0 0 1 1.5 1.5V16a1.5 1.5 0 0 0 3 0V8l-3-3"/>',
+  estate: '<path d="M3 11l9-7 9 7M5 10v10h14V10M10 20v-6h4v6"/>',
+  gate: '<path d="M3 11l9-7 9 7M5 10v10h14V10M10 20v-6h4v6"/>',
+  plaza: '<path d="M4 21V6l8-3 8 3v15M9 9h2M13 9h2M9 13h2M13 13h2M10 21v-4h4v4"/>',
+  road: '<path d="M8 3L5 21M16 3l3 18M12 4v3M12 11v3M12 18v3"/>',
+  building: '<path d="M4 21V9l8-5 8 5v12zM9 21v-6h6v6"/>',
+  check: '<path d="M4 12.5l5 5L20 6.5"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  pin: '<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 8v.5M12 11.5V16"/>',
+  alert: '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/>',
+  layers: '<path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"/>',
+  target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+  loop: '<path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/>',
+  menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>'
+};
+const icon = (n, size = 18, extra = '') =>
+  `<svg class="i" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${ICONS[n] || ICONS.pin}</svg>`;
+
+/* ---------- Store: requests + corrections (maps to the Supabase tables below) ----------
+   Uses the artifact persistent-storage API when present, otherwise memory only.
+   Production: replace with Supabase client calls (RLS-protected, server side).
+
+   -- SUPABASE SCHEMA (all seed rows are demo data) ------------------------
+   create table locations (id text primary key, area text, city text, state text,
+     latitude double precision, longitude double precision, building_type text,
+     landmarks text[], roads text[], is_demo boolean default true);
+   create table location_requests (id text primary key, description text, city text,
+     state text, created_at timestamptz default now(), selected_location_id text references locations(id),
+     confidence numeric, status text);
+   create table corrections (id text primary key, request_id text references location_requests(id),
+     reason text, corrected_latitude double precision, corrected_longitude double precision,
+     created_at timestamptz default now());
+   create table landmarks (id text primary key, name text, type text, area text,
+     latitude double precision, longitude double precision, is_demo boolean default true);
+*/
+const Store = {
+  requests: [], corrections: [], ready: false,
+  async load() {
+    try {
+      if (window.storage) {
+        for (const k of ['requests', 'corrections']) {
+          try { const r = await window.storage.get('vecta:' + k); if (r && r.value) this[k] = JSON.parse(r.value); } catch (e) { /* key not found */ }
+        }
+      }
+    } catch (e) { /* memory only */ }
+    this.ready = true;
+  },
+  async save() {
+    try {
+      if (window.storage) {
+        await window.storage.set('vecta:requests', JSON.stringify(this.requests.slice(-50)));
+        await window.storage.set('vecta:corrections', JSON.stringify(this.corrections.slice(-50)));
+      }
+    } catch (e) { /* memory only */ }
+  },
+  nextId() { return 'REQ-' + String(124 + this.requests.length).padStart(5, '0'); },
+  addRequest(r) { this.requests.push(r); this.save(); return r; },
+  updateRequest(id, patch) { const r = this.requests.find(x => x.id === id); if (r) Object.assign(r, patch); this.save(); },
+  addCorrection(c) { this.corrections.push(c); this.save(); }
+};
+
+/* ---------- Map building blocks (stylized SVG map; DEMO geography) ---------- */
+function smoothPath(p) {
+  let d = `M${p[0][0]} ${p[0][1]}`;
+  for (let i = 0; i < p.length - 1; i++) {
+    const p0 = p[i - 1] || p[i], p1 = p[i], p2 = p[i + 1], p3 = p[i + 2] || p2;
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += `C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0]} ${p2[1]}`;
+  }
+  return d;
+}
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+const BaseMap = (() => {
+  const rnd = mulberry32(2024);
+  // contour lines
+  const contours = [];
+  [[840, 610, 7], [170, 110, 6], [560, 700, 3]].forEach(([cx, cy, n], k) => {
+    for (let i = 1; i <= n; i++) {
+      const R = 40 + i * 42, pts = [];
+      for (let a = 0; a < 6.283; a += 0.35) {
+        const rr = R * (1 + 0.14 * Math.sin(a * 3 + k + i * .6) + 0.07 * Math.cos(a * 5 + k));
+        pts.push([cx + Math.cos(a) * rr * 1.25, cy + Math.sin(a) * rr]);
+      }
+      pts.push(pts[0], pts[1]);
+      contours.push(`<path class="m-contour" d="${smoothPath(pts)}"/>`);
+    }
+  });
+  // buildings along roads
+  const bld = [];
+  ROADS.forEach(r => {
+    for (let i = 0; i < r.pts.length - 1; i++) {
+      const [ax, ay] = r.pts[i], [bx, by] = r.pts[i + 1];
+      const len = Math.hypot(bx - ax, by - ay), ang = Math.atan2(by - ay, bx - ax);
+      const nx = -Math.sin(ang), ny = Math.cos(ang);
+      for (let s = 12; s < len - 6; s += 24 + rnd() * 10) {
+        for (const side of [-1, 1]) {
+          if (rnd() < 0.22) continue;
+          const off = (r.kind === 'primary' ? 20 : 16) + rnd() * 9;
+          const cx = ax + Math.cos(ang) * s + nx * off * side, cy = ay + Math.sin(ang) * s + ny * off * side;
+          if (cx < -10 || cx > 1010 || cy < -10 || cy > 710) continue;
+          if (ROADS.some(o => distToRoad(cx, cy, o) < 12)) continue;
+          const w = 13 + rnd() * 11, h = 9 + rnd() * 8;
+          bld.push(`<rect class="m-bld" x="${(-w / 2).toFixed(1)}" y="${(-h / 2).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) rotate(${(ang * 57.3).toFixed(0)})"/>`);
+        }
+      }
+    }
+  });
+  const width = { primary: 11, secondary: 8, tertiary: 5.5 };
+  const casing = ROADS.map(r => `<path class="m-case" stroke-width="${width[r.kind] + 3}" d="${smoothPath(r.pts)}"/>`).join('');
+  const roads = ROADS.map(r => `<path class="m-road ${r.kind}" stroke-width="${width[r.kind]}" d="${smoothPath(r.pts)}"/>`).join('');
+  let grid = '';
+  for (let x = 0; x <= 1000; x += 100) grid += `M${x} 0V700`;
+  for (let y = 0; y <= 700; y += 100) grid += `M0 ${y}H1000`;
+  const layers = `<rect class="m-bg" x="-100" y="-100" width="1200" height="900"/><path class="m-grid" d="${grid}"/>${contours.join('')}${bld.join('')}${casing}${roads}`;
+  return { layers };
+})();
+
+const ROAD_LABELS = [
+  ['Main Road', 130, 380, -1.5], ['Second Street', 432, 200, 90], ['First Street', 258, 170, 90],
+  ['Third Street', 646, 190, 90], ['Market Road', 690, 158, -30], ['Estate Road', 880, 547, 6], ['Hospital Road', 770, 100, 270]
+];
+
+/* ---------- VectaMap (reusable) ----------
+   Props: latitude, longitude, zoom, candidates[], landmarks[], selectedId,
+          pick (draggable correction marker), marker {latitude,longitude},
+          onSelect(id), onPick({latitude,longitude})
+   Renders a stylized SVG map so the prototype works offline.
+   PRODUCTION: swap the renderer for Leaflet + OpenStreetMap / Mapbox GL —
+   keep this same prop interface so pages don't change. */
+function VectaMap(el, props) {
+  const o = Object.assign({ latitude: 5.010, longitude: 7.785, zoom: 1, candidates: [], landmarks: LANDMARKS, selectedId: null, pick: false, marker: null, onSelect: null, onPick: null, roadLabels: true }, props);
+  let c = GEO.toXY(o.latitude, o.longitude), z = o.zoom;
+  let pickPt = o.pick ? (o.marker ? GEO.toXY(o.marker.latitude, o.marker.longitude) : { ...c }) : null;
+  const home = { ...c, z };
+  el.classList.toggle('pick', !!o.pick);
+
+  const vbox = () => {
+    const w = GEO.W / z, h = GEO.H / z;
+    c.x = Math.max(w / 2 - 60, Math.min(GEO.W + 60 - w / 2, c.x));
+    c.y = Math.max(h / 2 - 60, Math.min(GEO.H + 60 - h / 2, c.y));
+    return { x: c.x - w / 2, y: c.y - h / 2, w, h };
+  };
+  const upp = () => { const r = el.getBoundingClientRect(); const v = vbox(); return 1 / Math.max(1e-6, Math.max((r.width || 600) / v.w, (r.height || 360) / v.h)); };
+
+  function pinShape(fill, scale, extra = '') {
+    return `<g transform="scale(${scale})" ${extra}><path d="M0 0C-9 -12 -13 -20 -13 -26a13 13 0 1 1 26 0c0 6 -4 14 -13 26z" fill="${fill}" stroke="#06101F" stroke-width="1.6"/><circle cy="-26" r="5" fill="#06101F"/></g>`;
+  }
+
+  function render() {
+    const v = vbox(), u = upp();
+    const sel = o.candidates.find(k => k.id === o.selectedId);
+    let s = `<svg viewBox="${v.x} ${v.y} ${v.w} ${v.h}" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Stylized demo map of the Abak pilot area">${BaseMap.layers}`;
+    if (o.roadLabels) {
+      s += ROAD_LABELS.map(([t, x, y, a]) => `<text class="m-lbl road" font-size="${12 * u}" text-anchor="middle" transform="translate(${x} ${y}) rotate(${a})">${t}</text>`).join('');
+    }
+    // landmarks
+    s += o.landmarks.map(l => {
+      const k = u * 0.62;
+      return `<g transform="translate(${l.x} ${l.y})"><circle r="${12 * u}" fill="#0F2442" stroke="#35598F" stroke-width="${u}"/><g transform="scale(${k}) translate(-12 -12)" fill="none" stroke="#B9CBE6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[l.type] || ICONS.pin}</g><text class="m-lbl" font-size="${11 * u}" x="${16 * u}" y="${4 * u}">${esc(l.name)}</text></g>`;
+    }).join('');
+    // uncertainty radius around selected / primary candidate
+    const focus = sel || (o.candidates.length === 1 ? o.candidates[0] : null);
+    if (focus) {
+      const r = (22 + (1 - focus.confidence) * 110);
+      s += `<circle cx="${focus.x}" cy="${focus.y}" r="${r}" fill="#FFB020" fill-opacity=".1" stroke="#FFB020" stroke-opacity=".7" stroke-dasharray="${5 * u} ${4 * u}" stroke-width="${1.5 * u}"/>`;
+    }
+    // candidate markers
+    o.candidates.forEach(k => {
+      const isSel = k.id === o.selectedId || (o.candidates.length === 1);
+      s += `<g transform="translate(${k.x} ${k.y})" data-cand="${k.id}" style="cursor:pointer" tabindex="0" role="button" aria-label="Candidate ${k.rank}: ${esc(k.area)}">`;
+      if (isSel) {
+        s += pinShape('#FFB020', u * 1.05);
+      } else {
+        s += `<circle r="${14 * u}" fill="#59D2E6" stroke="#06101F" stroke-width="${2 * u}"/><text text-anchor="middle" y="${5 * u}" font-size="${14 * u}" font-weight="700" fill="#06101F" font-family="var(--sans)">${k.rank}</text>`;
+      }
+      s += '</g>';
+    });
+    // correction marker
+    if (pickPt) {
+      s += `<g transform="translate(${pickPt.x} ${pickPt.y})" data-pin="1" style="cursor:grab"><circle r="${22 * u}" fill="transparent"/>${pinShape('#59D2E6', u * 1.15)}</g>`;
+    }
+    s += '</svg>';
+    el.querySelector('.map-host').innerHTML = s;
+  }
+
+  el.innerHTML = `<div class="map-host" style="position:absolute;inset:0"></div>
+    <div class="mapctl"><button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="out" aria-label="Zoom out">&minus;</button><button type="button" data-z="reset" aria-label="Reset view">${icon('target', 16)}</button></div>
+    <div class="map-attr">Stylized demo map · not to scale</div>`;
+  render();
+
+  /* interaction */
+  let drag = null;
+  const svg = () => el.querySelector('svg');
+  const toGrid = (cx, cy) => { const s = svg(); const pt = s.createSVGPoint(); pt.x = cx; pt.y = cy; const m = s.getScreenCTM().inverse(); const p = pt.matrixTransform(m); return { x: p.x, y: p.y }; };
+  const emitPick = () => { const ll = GEO.toLatLng(pickPt.x, pickPt.y); o.onPick && o.onPick({ latitude: +ll.lat.toFixed(6), longitude: +ll.lng.toFixed(6) }); };
+
+  el.addEventListener('pointerdown', e => {
+    if (e.target.closest('.mapctl')) return;
+    const onPin = e.target.closest('[data-pin]');
+    drag = { sx: e.clientX, sy: e.clientY, cx: c.x, cy: c.y, moved: false, pin: !!onPin && !!pickPt, id: e.pointerId };
+    try { el.setPointerCapture(e.pointerId); } catch (_) { }
+  });
+  el.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+    if (Math.hypot(dx, dy) > 4) drag.moved = true;
+    if (!drag.moved) return;
+    if (drag.pin) {
+      const g = toGrid(e.clientX, e.clientY);
+      pickPt = { x: Math.max(0, Math.min(1000, g.x)), y: Math.max(0, Math.min(700, g.y)) };
+      const grp = el.querySelector('[data-pin]'); if (grp) grp.setAttribute('transform', `translate(${pickPt.x} ${pickPt.y})`);
+      emitPick();
+    } else {
+      const u = upp(); c.x = drag.cx - dx * u; c.y = drag.cy - dy * u;
+      const v = vbox(); svg().setAttribute('viewBox', `${v.x} ${v.y} ${v.w} ${v.h}`);
+    }
+  });
+  const end = e => {
+    if (!drag) return;
+    const d = drag; drag = null;
+    if (!d.moved && pickPt && !e.target.closest('.mapctl')) { // tap to place
+      const g = toGrid(e.clientX, e.clientY); pickPt = { x: Math.max(0, Math.min(1000, g.x)), y: Math.max(0, Math.min(700, g.y)) }; render(); emitPick();
+    } else if (d.pin) { render(); }
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', () => { drag = null; });
+  el.addEventListener('click', e => {
+    const b = e.target.closest('[data-z]');
+    if (b) {
+      if (b.dataset.z === 'in') z = Math.min(5, z * 1.4);
+      else if (b.dataset.z === 'out') z = Math.max(1, z / 1.4);
+      else { z = home.z; c = { x: home.x, y: home.y }; }
+      render(); return;
+    }
+    const k = e.target.closest('[data-cand]');
+    if (k && o.onSelect) o.onSelect(k.dataset.cand);
+  });
+  el.addEventListener('keydown', e => { const k = e.target.closest && e.target.closest('[data-cand]'); if (k && (e.key === 'Enter' || e.key === ' ') && o.onSelect) { e.preventDefault(); o.onSelect(k.dataset.cand); } });
+  el.addEventListener('wheel', e => { if (!(e.ctrlKey || e.metaKey)) return; e.preventDefault(); z = Math.max(1, Math.min(5, z * (e.deltaY < 0 ? 1.15 : 1 / 1.15))); render(); }, { passive: false });
+  if (window.ResizeObserver) { let t; new ResizeObserver(() => { clearTimeout(t); t = setTimeout(() => { if (el.isConnected && !drag) render(); }, 80); }).observe(el); }
+  return { update(p) { Object.assign(o, p); if (p.latitude != null) c = GEO.toXY(o.latitude, o.longitude); if (p.zoom) z = p.zoom; render(); } };
+}
+
+/* ---------- Hero visual (decorative, animated) ---------- */
+function HeroMap(ex) {
+  const route = [[-10, 392], [180, 384], [330, 372], [430, 362], [520, 352], [521, 312], [548, 268]];
+  const d = smoothPath(route);
+  const top = ex && ex.candidateLocations[0];
+  const px = top ? top.x : 560, py = top ? top.y : 262;
+  const lm = LANDMARKS.filter(l => ['market', 'church', 'junction', 'school', 'hospital', 'pharmacy'].includes(l.type));
+  return `<svg viewBox="40 90 800 650" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${BaseMap.layers}
+    ${ROAD_LABELS.slice(0, 3).map(([t, x, y, a]) => `<text class="m-lbl road" font-size="13" text-anchor="middle" transform="translate(${x} ${y}) rotate(${a})">${t}</text>`).join('')}
+    ${lm.map(l => `<g transform="translate(${l.x} ${l.y})"><circle r="12" fill="#0F2442" stroke="#35598F"/><g transform="scale(.62) translate(-12 -12)" fill="none" stroke="#B9CBE6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[l.type]}</g><text class="m-lbl" font-size="11" x="16" y="4">${esc(l.name)}</text></g>`).join('')}
+    <path class="m-route-ghost" d="${d}"/>
+    <path class="m-route" pathLength="1" d="${d}"/>
+    <circle class="pulse" cx="${px}" cy="${py}" r="22"/><circle class="pulse d2" cx="${px}" cy="${py}" r="22"/>
+    <g transform="translate(${px} ${py})"><g class="pin-drop"><path d="M0 0C-9 -12 -13 -20 -13 -26a13 13 0 1 1 26 0c0 6 -4 14 -13 26z" fill="#FFB020" stroke="#06101F" stroke-width="1.6" transform="scale(1.3)"/><circle cy="-34" r="6.5" fill="#06101F"/></g></g>
+  </svg>`;
+}
+
+/* ---------- Shared components ---------- */
+const NAV = [['/eld', 'ELD'], ['/coverage', 'Coverage'], ['/about', 'About'], ['/api', 'API']];
+function Navbar(path) {
+  const cur = p => (path === p || (p === '/eld' && path === '/results')) ? 'aria-current="page"' : '';
+  return `<header class="nav"><div class="wrap nav-in">
+    <a class="logo" href="#/" aria-label="VECTA home"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M3 5l10 17L23 5" stroke="#fff" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="13" cy="9" r="2.6" fill="#FFB020"/></svg>VECTA<span class="tag">ELD</span></a>
+    <nav class="nav-links ${state.menuOpen ? 'open' : ''}" aria-label="Main">${NAV.map(([p, t]) => `<a href="#${p}" ${cur(p)}>${t}</a>`).join('')}</nav>
+    <span class="spacer"></span>
+    <a class="btn btn-signal btn-sm" href="#/eld">Try ELD</a>
+    <button class="menu-btn" data-action="menu" aria-label="Toggle menu" aria-expanded="${!!state.menuOpen}">${icon('menu', 20)}</button>
+  </div></header>`;
+}
+function Footer() {
+  return `<footer class="footer"><div class="wrap">
+    <div><b style="color:#fff;letter-spacing:.14em">VECTA</b> &nbsp;Location intelligence built for Nigeria.<br><span style="display:block;margin-top:6px;max-width:60ch">Prototype. All locations, landmarks, coordinates and metrics shown are simulated demo data, not verified geographic information.</span></div>
+    <div class="fl"><a href="#/eld">ELD</a><a href="#/coverage">Coverage</a><a href="#/about">About</a><a href="#/api">API</a><a href="#/dashboard">Pilot dashboard</a></div>
+  </div></footer>`;
+}
+function ConfidenceScore(conf) {
+  const p = pct(conf);
+  return `<div class="conf"><div class="conf-num" aria-label="${p} percent">${p}<span>%</span></div><div class="conf-label">MATCH CONFIDENCE</div>
+    <div class="bar ${conf < 0.8 ? 'low' : ''}" role="progressbar" aria-valuenow="${p}" aria-valuemin="0" aria-valuemax="100"><i data-w="${p}"></i><b></b></div>
+    <div class="bar-scale"><span>0</span><span>80% single-match threshold</span><span>100</span></div></div>`;
+}
+function CandidateCard(c, selected) {
+  const near = c.nearest ? `Near ${esc(c.nearest.name)}, ${c.nearest.distance} m` : 'Near mapped area';
+  return `<article class="cand ${selected ? 'is-sel' : ''}"><div class="top"><span>Candidate ${c.rank}</span><span class="pct">${pct(c.confidence)}% match</span></div>
+    <h3>${esc(c.area)}</h3><p>${near}</p><div class="mini"><i style="width:${pct(c.confidence)}%"></i></div>
+    <button class="btn ${selected ? 'btn-primary' : 'btn-ghost'} btn-sm" data-action="select" data-id="${c.id}">${selected ? 'Selected' : 'Select'}</button></article>`;
+}
+function Tag(t) { return `<span class="chip">${esc(cap(t))}</span>`; }
+
+/* ---------- state ---------- */
+const EXAMPLES = ['Behind the market, close to the church...', 'After the junction, second street on the left...', 'Opposite the school, beside the blue building...'];
+const state = {
+  description: '', city: 'Abak', phase: 'idle', errorMsg: '', fieldErr: '',
+  result: null, requestId: null, selectedId: null, showAlt: false,
+  fb: { stage: 'ask', reason: null, pin: null }, menuOpen: false, runId: 0, apiOut: null
+};
+
+/* ---------- Pages ---------- */
+const DEMO_REQS = [
+  { id: 'REQ-00123', desc: 'Behind the market, second street after the church', area: 'Abak Market Area', conf: 0.91, status: 'Confirmed' },
+  { id: 'REQ-00122', desc: 'After the junction, turn left at the filling station', area: 'Main Road Junction', conf: 0.87, status: 'Confirmed' },
+  { id: 'REQ-00121', desc: 'Beside the blue building, opposite the school', area: 'School Area', conf: 0.62, status: 'Correction needed' },
+  { id: 'REQ-00120', desc: 'Near the church, close to the main road', area: 'Church Area', conf: 0.91, status: 'Confirmed' }
+];
+
+function HomePage() {
+  const ex = LocationInterpretationService.interpretLocationSync(EXAMPLES[0].replace('...', ''), 'Abak');
+  const top = ex.candidateLocations[0];
+  return `<section class="hero on-dark"><div class="wrap hero-in">
+    <div><span class="badge"><i></i>ABAK PILOT • AKWA IBOM</span>
+      <h1>Turning Nigerian directions into exact locations.</h1>
+      <p class="lead">Vecta ELD interprets landmarks, roads, buildings and everyday directions to help businesses locate places more accurately.</p>
+      <div class="cta-row"><a class="btn btn-signal" href="#/eld">Try Vecta ELD</a><a class="btn btn-ghost" href="#/coverage">Explore the Abak Pilot</a></div>
+      <div class="hero-meta"><span><b>Location intelligence</b> built for Nigeria</span><span>Prototype · simulated demo data</span></div></div>
+    <div class="hero-map" aria-label="Animated stylized map showing a route to a location pin">${HeroMap(ex)}
+      <div class="hero-card"><q>${esc(EXAMPLES[0].replace('...', ''))}</q>
+        <div class="chips">${ex.landmarks.map(t => `<span class="chip sig">${esc(cap(t))}</span>`).join('')}${ex.directions.map(Tag).join('')}</div>
+        <div class="pct">${pct(top.confidence)}%<small>PROTOTYPE RESULT</small></div></div></div>
+  </div></section>
+  <section class="band"><div class="wrap"><p class="eyebrow">How Vecta ELD works</p><h2 class="h2">From how people talk to where things are.</h2>
+    <div class="steps-row">
+      <div class="srow"><div class="dot"></div><h3>Describe</h3><p>Someone explains a place the way they would to a rider: landmarks, roads, junctions.</p></div>
+      <div class="srow"><div class="dot"></div><h3>Interpret</h3><p>Vecta pulls out the clues: what is nearby, which road, which direction.</p></div>
+      <div class="srow"><div class="dot"></div><h3>Locate</h3><p>Clues are matched against location data to rank likely places with a confidence score.</p></div>
+      <div class="srow"><div class="dot"></div><h3>Improve</h3><p>Confirmations and corrections from users feed back into the pilot dataset.</p></div>
+    </div>
+    <div class="xform"><div class="in"><q>${esc(EXAMPLES[0].replace('...', ''))}</q><small>What a customer might say</small></div>
+      <div><dl class="kv">
+        <dt>Landmarks</dt><dd class="chips light">${ex.landmarks.map(Tag).join('')}</dd>
+        <dt>Directions</dt><dd class="chips light">${ex.directions.map(Tag).join('')}</dd>
+        <dt>Best match</dt><dd><b>${esc(top.area)}</b> <span class="demo-tag">DEMO DATA</span></dd>
+        <dt>Confidence</dt><dd><b>${pct(top.confidence)}%</b> · live from the prototype engine</dd></dl></div></div>
+  </div></section>
+  <section class="band paper"><div class="wrap"><h2 class="h2">Where an address is not enough.</h2>
+    <div class="cols3">
+      <div class="col">${icon('target', 24)}<h3>Delivery and logistics</h3><p>Reduce calls to ask “where exactly are you?” by turning the first description into a candidate pin.</p></div>
+      <div class="col">${icon('search', 24)}<h3>Banking and fintech</h3><p>Support address verification flows with a structured read of how customers describe where they live and work.</p></div>
+      <div class="col">${icon('layers', 24)}<h3>Field operations</h3><p>Give agents and technicians a probable location before they leave the office.</p></div>
+    </div></div></section>
+  <section class="cta-band"><div class="wrap"><h2>See it work on a description of your own.</h2><a class="btn btn-signal" href="#/eld">Try Vecta ELD</a></div></section>`;
+}
+
+function ELDPage() {
+  if (state.phase === 'processing') return ProcessingView();
+  const errBlock = state.phase === 'error' ? `<div class="panel pad" style="border-color:#e2b3ae;background:var(--bad-soft);margin-bottom:18px" role="alert"><b style="color:var(--bad)">Vecta couldn't process that.</b><p style="color:#7a2a24;margin-top:4px">${esc(state.errorMsg)}</p></div>` : '';
+  return `<div class="wrap"><div class="page-head"><h1>Exact Location Direction</h1><p>Describe a location the way you would normally explain it to someone.</p></div>
+  <div class="eld-grid"><div>${errBlock}<div class="panel pad">
+    <label class="lbl" for="desc">Location description</label>
+    <textarea id="desc" class="ta" placeholder="Behind the market, after the church, second street on the left, blue gate beside the pharmacy..." maxlength="400">${esc(state.description)}</textarea>
+    <p class="helper">Tip: Use landmarks, roads, junctions, buildings or directions. Please don't include names, phone numbers or home addresses.</p>
+    ${state.fieldErr ? `<p class="err" role="alert">${icon('alert', 16)}${esc(state.fieldErr)}</p>` : ''}
+    <div class="field-row"><div><label class="lbl" for="city">Location</label>
+      <select id="city" class="sel"><option selected>Abak, Akwa Ibom</option><option disabled>Uyo, Akwa Ibom — coming next</option><option disabled>Port Harcourt — planned</option></select></div>
+      <button class="btn btn-primary" data-action="find">${icon('search', 18)}Find Location</button></div>
+    <div class="examples"><h3>Try an example</h3>${EXAMPLES.map((t, i) => `<button class="ex-btn" data-action="example" data-i="${i}">${esc(t)}</button>`).join('')}</div>
+  </div></div>
+  <aside><div class="side-note"><h3>Prototype notice</h3><ul><li>Vecta ELD is running on a simulated matching engine and demo data for Abak.</li><li>Results are probable locations, not verified addresses.</li><li>Your confirmations and corrections are recorded for the pilot.</li></ul></div>
+  <div class="side-note" style="margin-top:16px"><h3>Better descriptions</h3><ul><li>Name the nearest landmark first.</li><li>Mention the road or street and which side.</li><li>Add a colour or building type if it helps.</li></ul></div></aside></div></div>`;
+}
+
+const STEPS = ['Identifying landmarks', 'Understanding road directions', 'Searching nearby locations', 'Comparing possible matches', 'Calculating confidence'];
+function ProcessingView() {
+  return `<div class="wrap"><div class="proc" role="status" aria-live="polite"><h2>Understanding your direction...</h2><q>${esc(state.description)}</q>
+    <ol class="psteps">${STEPS.map((s, i) => `<li data-step="${i}"><span class="ic"></span>${s}</li>`).join('')}</ol>
+    <div class="proc-bar"><i></i></div></div></div>`;
+}
+async function runProcessing(runId) {
+  const items = [...document.querySelectorAll('.psteps li')];
+  const bar = $('.proc-bar i'); requestAnimationFrame(() => bar && (bar.style.width = '100%'));
+  const set = (i, cls) => {
+    const li = items[i]; if (!li) return;
+    li.className = 'show ' + cls;
+    li.querySelector('.ic').innerHTML = cls === 'done' ? `<span class="ok">${icon('check', 20)}</span>` : '<span class="dot"></span>';
+  };
+  const anim = (async () => {
+    for (let i = 0; i < items.length; i++) {
+      if (state.runId !== runId) return;
+      if (i > 0) set(i - 1, 'done');
+      set(i, 'active');
+      await sleep(i === items.length - 1 ? 700 : 520);
+    }
+  })();
+  let out, err;
+  try { out = await LocationInterpretationService.interpretLocation(state.description, state.city); } catch (e) { err = e; }
+  await anim;
+  if (state.runId !== runId) return;
+  if (err) { state.phase = 'error'; state.errorMsg = err.message || 'Something went wrong. Please try again.'; render(); return; }
+  const top = out.candidateLocations[0];
+  const req = Store.addRequest({ id: Store.nextId(), description: state.description, city: 'Abak', state: 'Akwa Ibom', createdAt: Date.now(), selectedLocationId: top ? top.id : null, confidence: top ? top.confidence : 0, status: out.status === 'ok' ? 'Pending' : 'No match', area: top ? top.area : '—' });
+  state.result = out; state.requestId = req.id; state.phase = 'idle';
+  state.mode = top && top.confidence >= 0.8 ? 'single' : 'candidates';
+  state.selectedId = state.mode === 'single' ? top.id : null;
+  state.showAlt = false; state.fb = { stage: 'ask', reason: null, pin: null };
+  navigate('/results');
+}
+
+function EmptyResults() {
+  return `<div class="empty"><div class="ic">${icon('search', 24)}</div><h2>No description yet</h2><p>Describe a place in Abak using landmarks, roads and directions, and your result will appear here.</p><a class="btn btn-primary" href="#/eld">Try Vecta ELD</a></div>`;
+}
+function NoMatch() {
+  return `<div class="empty"><div class="ic">${icon('alert', 24)}</div><h2>Vecta couldn't find enough clues</h2><p>We didn't recognise a landmark, road or direction we know in the Abak pilot. Try adding:</p>
+  <ul><li>A landmark such as a market, church, school, hospital or junction</li><li>A road or street, like “main road” or “second street”</li><li>A direction, like “behind”, “opposite” or “on the left”</li></ul><br>
+  <button class="btn btn-primary" data-action="edit">Edit description</button></div>`;
+}
+
+function evidenceRow(e) {
+  const ic = e.kind === 'landmark' ? e.type : e.kind === 'road' ? 'road' : 'building';
+  return `<li><span class="ic">${icon(ic, 18)}</span><span>${esc(e.name)}</span><span class="d">${e.distance != null ? e.distance + ' m' : ''}</span></li>`;
+}
+function whyRows(c, r) {
+  const m = c.matched;
+  const lm = m.landmarks.length ? (m.landmarks.length >= r.landmarks.length ? 'ok' : 'part') : (r.landmarks.length ? 'none' : 'na');
+  const rd = (m.roads.length || m.directions.length) ? ((m.roads.length >= r.roads.length && m.directions.length >= r.directions.length) ? 'ok' : 'part') : ((r.roads.length || r.directions.length) ? 'none' : 'na');
+  const bl = r.buildingType || r.attributes.length ? ((m.buildingType || r.attributes.some(a => m.attributes.includes(a))) ? 'ok' : 'none') : 'na';
+  const label = { ok: ['Match', 'ok', 'check'], part: ['Partial', 'part', 'check'], none: ['No match', 'na', 'x'], na: ['Not mentioned', 'na', 'info'] };
+  const rows = [['Landmark match', lm], ['Road-direction match', rd], ['Area match', 'ok'], ['Building match', bl]];
+  return rows.map(([t, k]) => `<li><span>${t}</span><span class="res ${label[k][1]}">${label[k][0]} ${icon(label[k][2], 18)}</span></li>`).join('');
+}
+
+function ResultsPage() {
+  const r = state.result;
+  if (!r) return EmptyResults();
+  if (r.status === 'no_match') return `<div class="wrap">${NoMatch()}</div>`;
+  const cands = r.candidateLocations;
+  const single = state.mode === 'single';
+  const sel = cands.find(c => c.id === state.selectedId) || null;
+  const top = cands[0];
+  let band;
+  const descCard = `<div class="desc-card"><small>Your description · Abak, Akwa Ibom</small><q>${esc(r.input.description)}</q><div class="row"><button class="btn btn-ghost btn-sm" data-action="edit">Edit description</button><button class="btn btn-ghost btn-sm" data-action="new">New search</button></div></div>`;
+  if (sel) band = `<div><span class="status ${sel.confidence < 0.8 ? 'warn' : ''}"><i></i>${single && sel.id === top.id ? 'LOCATION FOUND' : 'CANDIDATE SELECTED'}</span>${ConfidenceScore(sel.confidence)}</div>`;
+  else band = `<div><span class="status warn"><i></i>NEEDS YOUR CHOICE</span><h1 style="font-size:clamp(2rem,4.4vw,3.2rem);margin:14px 0 10px;letter-spacing:-.03em">We found ${cands.length} possible locations</h1><p style="color:#9FB3D1;max-width:46ch">No single match passed Vecta's 80% confidence threshold, so we're showing the best candidates instead of guessing. Highest candidate: ${pct(top.confidence)}%.</p></div>`;
+
+  let body = '';
+  if (!single) body += `<div class="cands">${cands.map(c => CandidateCard(c, c.id === state.selectedId)).join('')}</div>`;
+  body += `<div class="maprow"><div class="mapbox" id="result-map"><div class="legend"><span><i style="background:#FFB020"></i>Selected</span>${cands.length > 1 ? '<span><i style="background:#59D2E6"></i>Other candidates</span>' : ''}</div></div></div>`;
+  if (single && cands.length > 1) {
+    body += `<div class="alt-toggle"><button class="btn btn-ghost btn-sm" data-action="alt" aria-expanded="${state.showAlt}">${state.showAlt ? 'Hide alternatives' : 'View alternatives'}</button><span class="helper" style="margin:0">${cands.length - 1} other possible match${cands.length > 2 ? 'es' : ''} found.</span></div>`;
+    if (state.showAlt) body += `<div class="cands" style="grid-template-columns:repeat(${Math.min(3, cands.length)},1fr)">${cands.map(c => CandidateCard(c, c.id === state.selectedId)).join('')}</div>`;
+  }
+  if (sel) {
+    body += `<div class="detail"><div><span class="demo-tag">PROTOTYPE RESULT</span><h2 style="margin-top:12px">Probable Location</h2><p style="font-size:1.15rem;margin-top:6px">${esc(sel.area)}, Abak, Akwa Ibom</p>
+      <p class="coords">${fmtCoord(sel.latitude, sel.longitude)}</p><p class="coords-note">Simulated demo coordinates. Not a verified address.</p>
+      <h3 style="margin-top:26px;font-size:1.05rem">Vecta found</h3><ul class="found-list">${sel.evidence.map(evidenceRow).join('')}</ul></div>
+      <div class="why"><h2 style="font-size:1.5rem">Why this location?</h2><ul>${whyRows(sel, r)}</ul>
+      <p class="why-note">Vecta identified several geographic clues in the description and matched them against the pilot location dataset.</p>
+      <div class="chips light" style="margin-top:14px">${r.landmarks.map(Tag).join('')}${r.roads.map(Tag).join('')}${r.directions.map(Tag).join('')}${r.attributes.map(Tag).join('')}</div></div></div>`;
+    body += FeedbackBlock(sel);
+  } else {
+    body += `<div class="empty" style="margin:20px auto 0"><p style="margin:0">Select a candidate to see why Vecta suggested it and confirm or correct it.</p></div>`;
+  }
+  return `<div class="res-band on-dark"><div class="wrap res-in">${band}${descCard}</div></div><div class="wrap res-body">${body}</div>`;
+}
+
+function FeedbackBlock(sel) {
+  const f = state.fb;
+  const wrap = inner => `<section class="fb" aria-live="polite">${inner}</section>`;
+  if (f.stage === 'confirmed') return wrap(`<div class="thanks"><span class="ic">${icon('check', 20)}</span><div><h2>Location confirmed</h2><p>Thanks. Your confirmation has been recorded for the Abak pilot.</p><div class="btns"><button class="btn btn-primary btn-sm" data-action="new">Describe another location</button></div></div></div>`);
+  if (f.stage === 'submitted') return wrap(`<div class="thanks"><span class="ic">${icon('check', 20)}</span><div><h2>Correction received</h2><p>Thanks. Your correction has been recorded for the Abak pilot.</p><div class="btns"><button class="btn btn-primary btn-sm" data-action="new">Describe another location</button><a class="btn btn-ghost btn-sm" href="#/dashboard">View pilot dashboard</a></div></div></div>`);
+  if (f.stage === 'reason') {
+    const reasons = ['Wrong building', 'Wrong street', 'Wrong landmark', 'Location was nearby', 'Completely incorrect'];
+    const p = f.pin || { latitude: sel.latitude, longitude: sel.longitude };
+    return wrap(`<h2>Help Vecta improve</h2><p style="color:var(--muted)">What was wrong?</p>
+      <div class="reasons" role="radiogroup" aria-label="What was wrong?">${reasons.map(t => `<button class="reason" role="radio" aria-checked="${f.reason === t}" data-action="reason" data-r="${t}">${t}</button>`).join('')}</div>
+      <h3 style="font-size:1.05rem">Can you show us the correct location?</h3><p class="helper" style="margin-bottom:0">Drag the pin, or tap the map, to mark the correct spot.</p>
+      <div class="mapbox pick" id="correction-map"></div>
+      <p class="coords" id="pin-coords" style="margin:0 0 14px">${fmtCoord(p.latitude, p.longitude)}</p>
+      <div class="btns" style="margin-top:0"><button class="btn btn-primary" data-action="submitCorrection" ${f.reason ? '' : 'disabled'}>Submit Correction</button><button class="btn btn-ghost" data-action="cancelFb">Cancel</button></div>
+      ${f.reason ? '' : '<p class="helper">Choose what was wrong to enable submit.</p>'}`);
+  }
+  return wrap(`<h2>Is this the right location?</h2><p style="color:var(--muted)">Your answer helps improve Vecta's location data for Abak.</p>
+    <div class="btns"><button class="btn btn-ok" data-action="confirm">${icon('check', 18)}Confirm Location</button><button class="btn btn-bad" data-action="reject">${icon('x', 18)}That's Not It</button></div>`);
+}
+
+function mountResults() {
+  document.querySelectorAll('.bar i[data-w]').forEach(b => requestAnimationFrame(() => requestAnimationFrame(() => b.style.width = b.dataset.w + '%')));
+  const r = state.result; if (!r || r.status === 'no_match') return;
+  const cands = r.candidateLocations, sel = cands.find(c => c.id === state.selectedId);
+  const host = $('#result-map');
+  if (host) {
+    const pts = sel ? [sel] : cands;
+    const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+    const span = Math.max(Math.max(...xs) - Math.min(...xs), (Math.max(...ys) - Math.min(...ys)) * 1.5, 160);
+    const ll = GEO.toLatLng(cx, cy);
+    VectaMap(host, { latitude: ll.lat, longitude: ll.lng, zoom: Math.max(1.2, Math.min(3, 1000 / (span * 1.9))), candidates: cands, selectedId: state.selectedId, onSelect: id => { if (state.mode === 'candidates' || state.showAlt) selectCandidate(id); } });
+  }
+  const cm = $('#correction-map');
+  if (cm && sel) {
+    const p = state.fb.pin || { latitude: sel.latitude, longitude: sel.longitude };
+    VectaMap(cm, { latitude: sel.latitude, longitude: sel.longitude, zoom: 2.6, candidates: [], pick: true, marker: p, onPick: pos => { state.fb.pin = pos; const el = $('#pin-coords'); if (el) el.textContent = fmtCoord(pos.latitude, pos.longitude); } });
+    if (state.fb.pin == null) state.fb.pin = { latitude: sel.latitude, longitude: sel.longitude };
+  }
+}
+function selectCandidate(id) { state.selectedId = id; state.fb = { stage: 'ask', reason: null, pin: null }; render(); const t = $('.detail'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+
+function DashboardPage() {
+  const mine = Store.requests.slice().reverse();
+  const rows = [...mine.map(r => ({ id: r.id, desc: r.description, area: r.area, conf: r.confidence, status: r.status, mine: true })), ...DEMO_REQS];
+  const pill = s => `<span class="pill ${s === 'Confirmed' ? 'ok' : s === 'Correction needed' ? 'fix' : s.startsWith('Correction') ? 'new' : 'pend'}">${esc(s)}</span>`;
+  const circ = 2 * Math.PI * 42;
+  const metric = (v, l) => `<div class="metric"><span class="demo-tag">DEMO DATA</span><div class="v">${v}</div><div class="l">${l}</div></div>`;
+  return `<div class="wrap"><div class="page-head" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end"><div><h1>Vecta Pilot Dashboard</h1><p style="margin-top:6px">Abak • Akwa Ibom</p></div><span class="demo-pill"><i></i>DEMO MODE</span></div>
+  <div class="metrics">${metric('247', 'Locations processed')}${metric('191', 'Successful matches')}${metric('84%', 'Average confidence')}${metric('36', 'Corrections received')}</div>
+  <div class="dash-grid">
+    <div class="panel cov"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="font-size:1.15rem">Pilot Coverage</h2><span class="demo-tag">DEMO DATA</span></div>
+      <div class="ring"><svg width="104" height="104" viewBox="0 0 104 104" role="img" aria-label="72 percent pilot coverage"><circle cx="52" cy="52" r="42" fill="none" stroke="#E4EAF2" stroke-width="10"/><circle cx="52" cy="52" r="42" fill="none" stroke="#0B1A2F" stroke-width="10" stroke-dasharray="${circ * 0.72} ${circ}" transform="rotate(-90 52 52)"/></svg><div><div class="big">72%</div><div style="color:var(--muted);font-size:.9rem">of pilot area mapped (demo)</div></div></div>
+      <div style="margin-top:20px"><div class="stat"><span>Mapped demo locations</span><b>1,284</b></div><div class="stat"><span>Known demo landmarks</span><b>416</b></div><div class="stat"><span>Verified demo entrances</span><b>183</b></div>
+      <div class="stat"><span>Your corrections this session</span><b>${Store.corrections.length}</b></div></div></div>
+    <div class="panel"><div class="panel-h"><h2>Recent Location Requests</h2><span class="helper" style="margin:0">Select a row for details. Your searches appear at the top.</span></div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Request ID</th><th>Description</th><th class="hide-s">Result</th><th>Confidence</th><th>Status</th></tr></thead><tbody>
+      ${rows.map(r => `<tr class="row" tabindex="0" data-action="openReq" data-id="${r.id}"><td class="mono">${r.id}</td><td class="desc">“${esc(r.desc)}”</td><td class="hide-s">${esc(r.area)}</td><td>${r.conf ? pct(r.conf) + '%' : '—'}</td><td>${pill(r.status)}</td></tr>`).join('')}
+      </tbody></table></div></div></div></div>`;
+}
+function openReqModal(id) {
+  const all = [...Store.requests.map(r => ({ id: r.id, desc: r.description, area: r.area, conf: r.confidence, status: r.status, mine: true })), ...DEMO_REQS];
+  const r = all.find(x => x.id === id); if (!r) return;
+  const root = $('#modal-root');
+  root.innerHTML = `<div class="modal-bg" data-action="closeModal"><div class="modal" role="dialog" aria-modal="true" aria-label="Request ${r.id}" data-stop="1">
+    <span class="demo-tag">${r.mine ? 'YOUR SESSION' : 'DEMO DATA'}</span><h3 style="margin-top:10px">${r.id}</h3>
+    <q>${esc(r.desc)}</q>
+    <dl class="kv"><dt>Result</dt><dd>${esc(r.area)}</dd><dt>Confidence</dt><dd>${r.conf ? pct(r.conf) + '%' : '—'}</dd><dt>Status</dt><dd>${esc(r.status)}</dd><dt>Pilot</dt><dd>Abak, Akwa Ibom</dd></dl>
+    <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" data-action="rerun" data-id="${r.id}">Run again in ELD</button><button class="btn btn-ghost btn-sm" data-action="closeModal">Close</button></div></div></div>`;
+  const b = root.querySelector('.btn-primary'); b && b.focus();
+}
+
+function CoveragePage() {
+  const fut = [['Uyo', 'Coming next', 'next'], ['Port Harcourt', 'Planned', ''], ['Lagos', 'Planned', ''], ['Abuja', 'Planned', '']];
+  return `<div class="wrap"><div class="page-head"><h1>Vecta Geographic Coverage</h1><p style="font-size:1.25rem;color:var(--text);font-weight:500">Starting local. Building nationwide.</p></div>
+  <div class="pilot"><div class="t"><p class="eyebrow">Current Pilot</p><h2 style="font-size:2rem">Abak, Akwa Ibom</h2><div style="margin:14px 0 18px"><span class="status-pill"><i></i>Pilot</span></div>
+    <p style="color:var(--muted);max-width:44ch">The Abak pilot runs on a small simulated dataset of landmarks, roads and test locations. It is used to test how people describe places and how well those descriptions can be matched.</p>
+    <div style="margin-top:20px"><a class="btn btn-primary btn-sm" href="#/eld">Try Vecta ELD</a> <a class="btn btn-ghost btn-sm" href="#/dashboard">Pilot dashboard</a></div></div>
+    <div class="mapside">${HeroMap(null).replace('viewBox="40 90 800 650"', 'viewBox="120 120 700 460"')}</div></div>
+  <h2 style="font-size:1.4rem;margin-top:48px">Expansion</h2>
+  <div class="future">${fut.map(([n, s, k]) => `<div class="fcard ${k}"><h3>${n}</h3><span class="s">${s}</span><p>Not yet mapped by Vecta.</p></div>`).join('')}</div>
+  <p class="helper" style="margin:20px 0 80px">Expansion order is indicative and may change. None of these cities are currently covered by Vecta.</p></div>`;
+}
+function AboutPage() {
+  const p = [['target', 'Understand', 'Interpret natural Nigerian location descriptions.'], ['pin', 'Locate', 'Match descriptions to geographic candidates.'], ['loop', 'Improve', 'Use confirmations and corrections to continuously improve location intelligence.']];
+  return `<div class="wrap"><div class="page-head"><h1 style="max-width:18ch">Built for the way Nigeria actually works.</h1></div>
+  <div class="about-copy"><p>Traditional addressing systems are useful, but people don't always describe locations using formal addresses. They use landmarks, junctions, roads, buildings and local references.</p><p>Vecta is exploring how AI and geospatial technology can turn those everyday descriptions into structured location intelligence.</p></div>
+  <div class="cols3" style="margin:56px 0 90px">${p.map(([i, t, d]) => `<div class="col">${icon(i, 26)}<h3>${t}</h3><p>${d}</p></div>`).join('')}</div></div>`;
+}
+const API_REQ = `{\n  "description": "Behind the market, second street after the church",\n  "city": "Abak",\n  "state": "Akwa Ibom"\n}`;
+const API_RES = `{\n  "confidence": 0.91,\n  "location": {\n    "latitude": 5.0,\n    "longitude": 7.0\n  },\n  "matches": []\n}`;
+function APIPage() {
+  const prods = [['ELD API', 'Turn free-text directions into ranked location candidates.', 'Prototype'], ['Address Verification API', 'Check how well a described address matches a known location.', 'Planned'], ['Places API', 'Look up landmarks and places in covered areas.', 'Planned'], ['Location Intelligence API', 'Coverage, confidence and correction insights for your data.', 'Planned']];
+  return `<div class="wrap"><div class="page-head"><h1>Vecta API</h1><p>Location intelligence for Nigerian businesses and applications.</p></div>
+  <div class="endpoint"><span class="method">POST</span><code>/api/v1/eld/geocode</code><span class="warnbar">Prototype API — Not for production use</span></div>
+  <div class="code-grid"><div class="code"><header><span>Example request</span><button class="btn btn-signal btn-sm" data-action="runApi">Run sample (simulated)</button></header><pre>${esc(API_REQ)}</pre></div>
+    <div class="code"><header><span>${state.apiOut ? 'Simulated response from the prototype engine' : 'Example response'}</span>${state.apiOut ? '<span class="demo-tag">DEMO DATA</span>' : ''}</header><pre id="api-out">${esc(state.apiOut || API_RES)}</pre></div></div>
+  <h2 style="font-size:1.4rem;margin-top:52px">Products</h2><div class="prods">${prods.map(([n, d, s]) => `<div class="prod"><h3>${n}</h3><p>${d}</p><span class="s ${s === 'Prototype' ? 'live' : ''}">${s}</span></div>`).join('')}</div>
+  <p class="helper" style="margin:20px 0 80px">This page documents a mock interface. No API keys are used or exposed, and no production endpoint exists.</p></div>`;
+}
+function NotFound() {
+  return `<div class="empty"><div class="ic">${icon('alert', 24)}</div><h2>That page isn't part of the prototype</h2><p>Check the address or head back to the start.</p><a class="btn btn-primary" href="#/">Back to home</a></div>`;
+}
+
+/* ---------- Router ---------- */
+const ROUTES = {
+  '/': [HomePage, 'VECTA ELD — Turning Nigerian directions into exact locations'],
+  '/eld': [ELDPage, 'Exact Location Direction — VECTA ELD'],
+  '/results': [ResultsPage, 'Result — VECTA ELD'],
+  '/dashboard': [DashboardPage, 'Pilot Dashboard — VECTA ELD'],
+  '/coverage': [CoveragePage, 'Coverage — VECTA'],
+  '/about': [AboutPage, 'About — VECTA'],
+  '/api': [APIPage, 'API — VECTA']
+};
+const curPath = () => (location.hash.replace(/^#/, '') || '/').split('?')[0];
+function navigate(p) { if (curPath() === p) render(); else location.hash = p; }
+let lastPath = null;
+function render() {
+  const p = curPath();
+  if (p !== 'x' && state.phase === 'processing' && p !== '/eld') { state.runId++; state.phase = 'idle'; }
+  const route = ROUTES[p];
+  document.title = route ? route[1] : 'Not found — VECTA';
+  $('#app').innerHTML = Navbar(p) + `<main id="main">${route ? route[0]() : NotFound()}</main>` + (p === '/' ? '' : '') + Footer();
+  if (p === '/results') mountResults();
+  if (p === '/eld' && state.phase === 'processing') runProcessing(state.runId);
+  if (p !== lastPath) { window.scrollTo(0, 0); lastPath = p; }
+}
+window.addEventListener('hashchange', () => { state.menuOpen = false; closeModal(); render(); });
+
+/* ---------- Events ---------- */
+document.addEventListener('input', e => {
+  if (e.target.id === 'desc') { state.description = e.target.value; if (state.fieldErr) { state.fieldErr = ''; const er = $('.err'); er && er.remove(); } }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  const row = e.target.closest && e.target.closest('tr.row');
+  if (row && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openReqModal(row.dataset.id); }
+  if (e.target.id === 'desc' && e.key === 'Enter' && (e.metaKey || e.ctrlKey)) startFind();
+});
+function closeModal() { const r = $('#modal-root'); if (r) r.innerHTML = ''; }
+function startFind() {
+  const d = ($('#desc') ? $('#desc').value : state.description).trim();
+  state.description = d;
+  if (d.length < 6) { state.fieldErr = 'Add a short description first. A landmark or road is enough to start.'; render(); const t = $('#desc'); t && t.focus(); return; }
+  state.fieldErr = ''; state.phase = 'processing'; state.runId++; render();
+}
+document.addEventListener('click', async e => {
+  const a = e.target.closest('[data-action]'); if (!a) return;
+  if (a.dataset.action === 'closeModal' && e.target.closest('[data-stop]') && !e.target.closest('button')) return;
+  const act = a.dataset.action;
+  switch (act) {
+    case 'menu': state.menuOpen = !state.menuOpen; render(); break;
+    case 'example': state.description = EXAMPLES[+a.dataset.i]; state.fieldErr = ''; { const t = $('#desc'); if (t) { t.value = state.description; t.focus(); } const er = $('.err'); er && er.remove(); } break;
+    case 'find': startFind(); break;
+    case 'edit': state.phase = 'idle'; navigate('/eld'); break;
+    case 'new': state.description = ''; state.result = null; state.phase = 'idle'; navigate('/eld'); break;
+    case 'alt': state.showAlt = !state.showAlt; render(); break;
+    case 'select': selectCandidate(a.dataset.id); break;
+    case 'confirm': state.fb.stage = 'confirmed'; Store.updateRequest(state.requestId, { status: 'Confirmed', selectedLocationId: state.selectedId }); render(); break;
+    case 'reject': state.fb = { stage: 'reason', reason: null, pin: null }; render(); { const f = $('.fb'); f && f.scrollIntoView({ behavior: 'smooth', block: 'start' }); } break;
+    case 'cancelFb': state.fb = { stage: 'ask', reason: null, pin: null }; render(); break;
+    case 'reason': state.fb.reason = a.dataset.r; { const pin = state.fb.pin; render(); state.fb.pin = pin; } break;
+    case 'submitCorrection': {
+      if (!state.fb.reason) return;
+      const pin = state.fb.pin || {};
+      Store.addCorrection({ id: 'COR-' + String(Store.corrections.length + 1).padStart(4, '0'), requestId: state.requestId, reason: state.fb.reason, correctedLatitude: pin.latitude, correctedLongitude: pin.longitude, createdAt: Date.now(), isDemo: true });
+      Store.updateRequest(state.requestId, { status: 'Correction submitted' });
+      state.fb.stage = 'submitted'; render(); break;
+    }
+    case 'openReq': openReqModal(a.dataset.id); break;
+    case 'closeModal': closeModal(); break;
+    case 'rerun': {
+      const all = [...Store.requests.map(r => ({ id: r.id, desc: r.description })), ...DEMO_REQS];
+      const r = all.find(x => x.id === a.dataset.id); if (r) state.description = r.desc;
+      closeModal(); state.phase = 'idle'; navigate('/eld'); break;
+    }
+    case 'runApi': {
+      const out = $('#api-out'); if (out) out.textContent = 'Running simulated request…';
+      try { const res = await LocationInterpretationService.geocode({ description: 'Behind the market, second street after the church', city: 'Abak', state: 'Akwa Ibom' }); state.apiOut = JSON.stringify(res, null, 2); }
+      catch (err) { state.apiOut = JSON.stringify({ error: err.message }, null, 2); }
+      if (curPath() === '/api') render(); break;
+    }
+  }
+});
+
+/* ---------- boot ---------- */
+Store.load().then(() => { if (curPath() === '/dashboard') render(); });
+render();
+
+</script></body></html>
